@@ -310,9 +310,12 @@ document.querySelectorAll('[data-edit]').forEach(a=>a.onclick=e=>{e.preventDefau
 
 <script>
 // ================= Ask-me AI chat widget =================
-// The address of your backend. Right now this is your FastAPI server running on your machine.
-// When you deploy the API to the internet later, change THIS ONE LINE to the live URL.
-const CW_API = "https://samuel-ai-api.onrender.com/chat";
+// The address of your backend. Auto-switches by where the page is served from: open it on
+// localhost and it talks to your local FastAPI server (uvicorn on :8000); anywhere else
+// (i.e. the live Vercel site) it uses the deployed API.
+const CW_API = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+  ? "http://localhost:8000/chat"
+  : "https://samuel-ai-api.onrender.com/chat";
 
 const CW_GREETING = "Hi! I'm an AI assistant that knows Samuel's background and work. Ask me anything — his skills, his projects, or whether he's a fit for a role.";
 const CW_SUGGESTIONS = [
