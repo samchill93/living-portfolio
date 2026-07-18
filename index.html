@@ -26,17 +26,17 @@
   .top nav a:hover{color:var(--ink);}
 
   /* Hero */
-  .hero{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;padding:76px 0 68px;border-bottom:1px solid var(--line);}
+  .hero{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;padding:76px 0 68px;border-bottom:1px solid var(--line);}
   .hero .ey{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:22px;}
-  .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,6vw,64px);line-height:1.02;letter-spacing:-.03em;margin-bottom:22px;}
-  .hero p{font-size:18px;color:var(--ink2);max-width:520px;margin-bottom:28px;}
+  .hero h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;}
+  .hero p{font-size:16px;color:var(--ink2);max-width:440px;margin-bottom:26px;}
   .hero .cta{display:flex;gap:12px;flex-wrap:wrap;}
   .lnk{font-size:14px;font-weight:500;padding:11px 18px;border-radius:99px;border:1px solid var(--ink);transition:.16s;}
   .lnk:hover{background:var(--ink);color:var(--paper);}
   .lnk.sub{border-color:var(--line);color:var(--mut);}
   .lnk.sub:hover{border-color:var(--ink);color:var(--ink);background:transparent;}
-  .portrait{width:210px;height:250px;border-radius:8px;object-fit:cover;filter:grayscale(.15);box-shadow:0 24px 60px -24px rgba(20,24,29,.4);}
-  .portrait-mono{width:210px;height:250px;border-radius:8px;display:none;place-items:center;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:700;font-size:64px;}
+  .portrait{width:348px;height:414px;border-radius:8px;object-fit:cover;filter:grayscale(.15);box-shadow:0 24px 60px -24px rgba(20,24,29,.4);}
+  .portrait-mono{width:348px;height:414px;border-radius:8px;display:none;place-items:center;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:700;font-size:83px;}
 
   /* Work list */
   .worktitle{display:flex;justify-content:space-between;align-items:baseline;padding:52px 0 8px;}
@@ -355,8 +355,20 @@ function cwAddBubble(role, text){
   bub.className = "cw-bubble";
   bub.textContent = text;   // textContent shows text exactly and safely (no HTML injection)
   row.appendChild(bub);
-  cwMsgsEl().appendChild(row);
-  cwMsgsEl().scrollTop = cwMsgsEl().scrollHeight;
+  const msgs = cwMsgsEl();
+  msgs.appendChild(row);
+  if(role === "user"){
+    // The user's own message: jumping to the bottom is natural — they want to see what they sent.
+    msgs.scrollTop = msgs.scrollHeight;
+  } else {
+    // The assistant's answer is often long. Anchor the view to the user's question (the bubble
+    // just before this answer) so the reader sees their question followed by the start of the
+    // answer — not the tail end of it. Fall back to this bubble for the opening greeting, which
+    // has no preceding question.
+    const anchor = row.previousElementSibling || row;
+    const delta = anchor.getBoundingClientRect().top - msgs.getBoundingClientRect().top;
+    msgs.scrollTop += delta - 8;   // leave a small gap above it
+  }
 }
 function cwSetTyping(on){
   let t = document.getElementById("cwTyping");
