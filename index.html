@@ -150,13 +150,83 @@
   .cw-input button{font-family:var(--body);font-weight:600;font-size:13.5px;color:#fff;background:var(--accent);
     border:none;border-radius:10px;padding:0 16px;cursor:pointer;}
   .cw-input button:disabled{opacity:.5;cursor:not-allowed;}
+  .cw-cost{font-family:var(--mono);font-size:10.5px;color:var(--mut);padding:2px 4px 6px;align-self:flex-start;line-height:1.4;}
+  /* --- "This Site Is the Portfolio" (the build) --- */
+  .build{padding:60px 0;border-bottom:1px solid var(--line);}
+  .build .ey{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .build h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px;}
+  .build .lead{font-size:16px;color:var(--ink2);max-width:620px;}
+  .build .sub{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:38px 0 16px;}
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;padding:3px 8px;border-radius:5px;}
+  .badge.live{background:rgba(15,138,95,.12);color:#0f8a5f;}
+  .badge.planned{background:var(--bg);color:var(--mut);border:1px solid var(--line);}
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+  .feature{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;}
+  .feature .badge{margin-bottom:12px;}
+  .feature h3{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em;margin-bottom:6px;}
+  .feature p{font-size:13.5px;color:var(--mut);line-height:1.55;}
+  .feature code{font-family:var(--mono);font-size:12px;background:var(--bg);padding:1px 5px;border-radius:4px;}
+  .roadmap{display:flex;flex-direction:column;border-top:1px solid var(--line);}
+  .road{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--line);}
+  .road .rnum{font-family:var(--mono);font-size:12px;color:var(--mut);width:20px;flex-shrink:0;}
+  .road .rname{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em;}
+  .road .rnote{flex:1;font-size:13px;color:var(--mut);}
+  .road .badge{margin-left:auto;flex-shrink:0;}
+  @media(max-width:600px){.road .rnote{display:none;} .build .lead{font-size:15px;}}
+  /* --- Live telemetry strip (1.1) --- */
+  .telemetry{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--mut);padding:8px 0;border-bottom:1px solid var(--line);letter-spacing:.02em;}
+  .tdot{width:7px;height:7px;border-radius:50%;background:var(--mut);flex-shrink:0;transition:background .3s;}
+  .tdot.live{background:#0f8a5f;}
+  .tdot.down{background:#c2410c;}
+  /* --- Services / storefront --- */
+  .services{padding:60px 0;border-bottom:1px solid var(--line);}
+  .services .ey{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .services h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px;}
+  .services .lead{font-size:16px;color:var(--ink2);max-width:620px;}
+  .services .sub{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:40px 0 0;}
+  .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:20px;}
+  .svc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;}
+  .svc-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .svc-top h3{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;}
+  .price{font-family:var(--mono);font-size:13.5px;color:var(--accent);font-weight:500;white-space:nowrap;}
+  .svc-desc{font-size:13.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px;}
+  .svc-inc{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+  .svc-inc li{font-size:13px;color:var(--mut);display:flex;gap:8px;line-height:1.45;}
+  .svc-inc li::before{content:"\2192";color:var(--accent);flex-shrink:0;}
+  .svc-meta{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:auto;}
+  .svc-cta{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--ink);border:1px solid var(--ink);border-radius:99px;padding:9px 16px;text-align:center;transition:background .16s,color .16s;}
+  .svc-cta:hover{background:var(--ink);color:var(--paper);}
+  .svc.locked{opacity:.7;}
+  /* --- Inquiry form (storefront + live API demo, 1.4) --- */
+  .inquiry{padding:60px 0;border-bottom:1px solid var(--line);}
+  .inquiry .ey{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+  .inquiry h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px;}
+  .inquiry .lead{font-size:16px;color:var(--ink2);max-width:620px;margin-bottom:8px;}
+  .schema-toggle{background:none;border:none;color:var(--accent);font-family:var(--mono);font-size:12.5px;cursor:pointer;padding:0;text-decoration:underline;}
+  .schema{font-family:var(--mono);font-size:12px;background:var(--ink);color:#e8e8e6;padding:16px 18px;border-radius:10px;overflow-x:auto;margin:14px 0 26px;line-height:1.55;max-width:620px;}
+  .iform{display:flex;flex-direction:column;gap:14px;max-width:620px;}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .iform label{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);}
+  .iform input,.iform select,.iform textarea{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none;text-transform:none;letter-spacing:0;}
+  .iform input:focus,.iform select:focus,.iform textarea:focus{border-color:var(--accent);}
+  .iform textarea{resize:vertical;min-height:96px;}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  .ibtn{align-self:flex-start;font-size:14px;font-weight:600;color:var(--paper);background:var(--ink);border:none;border-radius:99px;padding:12px 22px;cursor:pointer;transition:background .16s;}
+  .ibtn:hover{background:var(--accent);}
+  .ibtn:disabled{opacity:.5;cursor:not-allowed;}
+  .istatus{font-family:var(--mono);font-size:12.5px;line-height:1.7;}
+  .istatus .ok{color:#0f8a5f;} .istatus .err{color:#c2410c;} .istatus .pipe{color:var(--mut);}
+  @media(max-width:600px){.frow{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="telemetry" id="telemetry" aria-live="polite">
+    <span class="tdot" id="tDot"></span><span id="tStatus">checking API…</span>
+  </div>
   <header class="top">
     <div class="mark">Samuel Hill</div>
-    <nav><a href="#work">Work</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#contact">Contact</a></nav>
+    <nav><a href="#build">The Build</a><a href="#services">Services</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#inquiry">Contact</a></nav>
   </header>
 
   <section class="hero">
@@ -165,7 +235,7 @@
       <h1>I build production LLM applications.</h1>
       <p>Self-taught and project-driven. I design, build, and ship real software end to end — authentication, payments, grounded LLM features — and I document the decisions, trade-offs, and failures behind every build.</p>
       <div class="cta">
-        <a class="lnk" href="#work">See the work</a>
+        <a class="lnk" href="#build">See what's live</a>
         <a class="lnk sub" href="https://cadence-support-bot.vercel.app/" target="_blank">Live demo ↗</a>
       </div>
     </div>
@@ -173,10 +243,132 @@
     <div class="portrait-mono">SH</div>
   </section>
 
-  <div id="work">
-    <div class="worktitle"><h2>Selected Work</h2><span>2026</span></div>
-    <div class="list" id="list"></div>
-  </div>
+  <section class="build" id="build">
+    <div class="ey">This site is the portfolio</div>
+    <h2>It doesn't list my skills — it runs them.</h2>
+    <p class="lead">Most portfolios describe what someone can do. This one is the proof: everything below is either live in production right now, or on a public roadmap — each item labeled honestly, never blurred together.</p>
+
+    <div class="sub">Running now · live in production</div>
+    <div class="feature-grid">
+      <div class="feature"><span class="badge live">Live</span><h3>Grounded AI assistant</h3><p>The "Ask my AI" chat answers from a curated knowledge base, refuses what it doesn't know, and never exposes the API key.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>Typed FastAPI backend</h3><p>A Python API with Pydantic models that validate every request and response against a schema.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>Continuous deployment</h3><p>Push to GitHub and the backend redeploys on Render while the site redeploys on Vercel — two clouds, automatically.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>CORS-hardened API</h3><p>The API accepts browser requests only from approved origins — locked down, and configurable per environment.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>Automated tests</h3><p>A pytest suite exercises the API and guards the assistant's honesty — the tests fail if the bot ever overclaims.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>Auto-generated API docs</h3><p>Interactive OpenAPI documentation at <code>/docs</code>, generated straight from the typed schema.</p></div>
+    </div>
+
+    <div class="sub">On the roadmap · built in public, shipping in order</div>
+    <div class="roadmap">
+      <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">published quality scores on a golden dataset</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">04</span><span class="rname">Agents + MCP</span><span class="rnote">a tool-using agent and a public MCP server</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">05</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">06</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">07</span><span class="rname">Terraform</span><span class="rnote">the whole stack defined as infrastructure-as-code</span><span class="badge planned">Planned</span></div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="ey">Work with me</div>
+    <h2>Hire me to build it.</h2>
+    <p class="lead">Productized packages with transparent "starting at" pricing and two revision rounds on every build. Bigger scopes we shape together on a short call.</p>
+
+    <div class="svc-grid">
+      <div class="svc">
+        <div class="svc-top"><h3>Starter Support Bot</h3><span class="price">from $1,500</span></div>
+        <p class="svc-desc">A grounded customer-support chatbot on Claude or OpenAI — honest refusal and a clean human handoff, like the live demo.</p>
+        <ul class="svc-inc"><li>Embedded on one site (React + Vercel serverless)</li><li>Basic branding, single language</li><li>Grounded answers, no hallucination</li></ul>
+        <div class="svc-meta">~1 week · 2 revisions</div>
+        <a class="svc-cta" href="#inquiry">Start a project &rarr;</a>
+      </div>
+      <div class="svc">
+        <div class="svc-top"><h3>Business Bot + Integration</h3><span class="price">from $3,500</span></div>
+        <p class="svc-desc">Everything in Starter, plus real integration into your existing app and the plumbing behind it.</p>
+        <ul class="svc-inc"><li>LLM integration into an existing site or app</li><li>Firebase auth + one external integration (CRM / email / Stripe)</li><li>Automated test suite, deploy to Vercel / Render / Cloud Run</li></ul>
+        <div class="svc-meta">2&ndash;3 weeks · 2 revisions</div>
+        <a class="svc-cta" href="#inquiry">Start a project &rarr;</a>
+      </div>
+      <div class="svc">
+        <div class="svc-top"><h3>Full-Stack AI Feature / App</h3><span class="price">from $7,500</span></div>
+        <p class="svc-desc">A production feature or app, built end to end — typed, tested, and deployed.</p>
+        <ul class="svc-inc"><li>Typed FastAPI backend (Pydantic, pytest, CI/CD)</li><li>React / Next.js or React Native (Expo) frontend</li><li>Stripe payments, up to five-language i18n, streaming UX</li><li>Deployment + documentation</li></ul>
+        <div class="svc-meta">scoped per project · 2 revisions</div>
+        <a class="svc-cta" href="#inquiry">Start a project &rarr;</a>
+      </div>
+      <div class="svc">
+        <div class="svc-top"><h3>Landing Page / Marketing Site</h3><span class="price">from $1,200</span></div>
+        <p class="svc-desc">A fast, framework-free responsive site built for conversion.</p>
+        <ul class="svc-inc"><li>Conversion-focused, fully responsive</li><li>Analytics + form / CRM integration</li></ul>
+        <div class="svc-meta">~1 week</div>
+        <a class="svc-cta" href="#inquiry">Start a project &rarr;</a>
+      </div>
+      <div class="svc">
+        <div class="svc-top"><h3>Care &amp; Improve retainer</h3><span class="price">$300&ndash;$1,200/mo</span></div>
+        <p class="svc-desc">Ongoing care after your build ships — so it keeps working and keeps getting better.</p>
+        <ul class="svc-inc"><li>Monitoring, uptime, prompt tuning, minor updates</li><li>Starter $300 · Growth $600 · Pro $1,200 per month</li><li>Higher tiers add new-feature work + monthly strategy calls</li></ul>
+        <div class="svc-meta">offered after a build</div>
+        <a class="svc-cta" href="#inquiry">Ask about retainers &rarr;</a>
+      </div>
+    </div>
+
+    <div class="sub">Unlocking soon · flips on the week each capability ships</div>
+    <div class="svc-grid">
+      <div class="svc locked">
+        <div class="svc-top"><h3>RAG Knowledge Assistant</h3><span class="badge planned">Unlocking soon</span></div>
+        <p class="svc-desc">RAG with citations (pgvector), source attribution, and an eval pipeline. From $6,000.</p>
+        <div class="svc-meta">available when the RAG build ships</div>
+      </div>
+      <div class="svc locked">
+        <div class="svc-top"><h3>AI Agent / Automation</h3><span class="badge planned">Unlocking soon</span></div>
+        <p class="svc-desc">Agentic tool use with integrations, error handling, observability, and containerized deployment. From $4,000.</p>
+        <div class="svc-meta">available when the agents module ships</div>
+      </div>
+      <div class="svc locked">
+        <div class="svc-top"><h3>Custom MCP Server</h3><span class="badge planned">Unlocking soon</span></div>
+        <p class="svc-desc">Wrap your APIs and data as an MCP server — auth, rate limiting, logging, Claude/OpenAI clients. From $6,000.</p>
+        <div class="svc-meta">available when the MCP server ships</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="inquiry" id="inquiry">
+    <div class="ey">Start a project</div>
+    <h2>Tell me what you're building.</h2>
+    <p class="lead">There's a real typed API behind this form: every field is validated server-side by Pydantic, then stored. <button class="schema-toggle" id="schemaToggle" type="button">Show the request schema</button></p>
+    <pre class="schema" id="schemaBox" hidden>POST /inquiry
+{
+  "name":             string,        // required
+  "email":            string,        // required, RFC-validated
+  "company":          string | null,
+  "package_interest": string | null,
+  "message":          string         // required
+}
+&rarr; 201 { "status": "received" }   ·   422 { field errors }</pre>
+
+    <form class="iform" id="inquiryForm" novalidate>
+      <div class="frow">
+        <label>Name<input name="name" type="text" maxlength="120" autocomplete="name"></label>
+        <label>Email<input name="email" type="email" autocomplete="email"></label>
+      </div>
+      <div class="frow">
+        <label>Company (optional)<input name="company" type="text" maxlength="160" autocomplete="organization"></label>
+        <label>Package<select name="package_interest">
+          <option value="">Not sure yet</option>
+          <option>Starter Support Bot</option>
+          <option>Business Bot + Integration</option>
+          <option>Full-Stack AI Feature / App</option>
+          <option>Landing Page / Marketing Site</option>
+          <option>Care &amp; Improve retainer</option>
+        </select></label>
+      </div>
+      <label>Message<textarea name="message" maxlength="4000" rows="4"></textarea></label>
+      <div class="hp" aria-hidden="true"><label>Website<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <button class="ibtn" id="iSubmit" type="submit">Send inquiry</button>
+      <div class="istatus" id="iStatus" aria-live="polite"></div>
+    </form>
+  </section>
 
   <footer id="contact">
     <div class="fmark">Let's build something.</div>
@@ -184,110 +376,114 @@
   </footer>
 </div>
 
-<div class="scrim" id="scrim">
-  <div class="modal" id="modal" role="dialog" aria-modal="true">
-    <button class="mclose" id="mclose" aria-label="Close">×</button>
-    <div class="mgal" id="mgal"></div>
-    <div class="mbody" id="mbody"></div>
-  </div>
-</div>
+<script>
+// Footer "edit" placeholders (LinkedIn / email) - clicking reminds you to set them in code.
+document.querySelectorAll('[data-edit]').forEach(a=>a.onclick=e=>{e.preventDefault();alert('Add your LinkedIn / email here in the code (search for data-edit).');});
+</script>
 
 <script>
-const PROJECTS = [
-  {id:'living',name:'The Living Portfolio',cat:'AI / Full-Stack',role:'Flagship — in progress · 2026',accent:'#2f5bd6',wip:true,
-   blurb:'This very site, becoming a public engineering artifact — an AI you can interview about my experience, with RAG, MCP, public evals, and IaC on the roadmap.',
-   desc:"An ambitious capstone where the portfolio itself is the proof. Phase 1 — a typed Python (FastAPI) backend and an integrated chat widget, so the site can be interviewed about my experience — is built. The phased roadmap turns it into a public engineering artifact: retrieval with citations (RAG), agentic tool use with a published MCP server, public evals with tracing and a cost/latency dashboard, and a Terraform-defined cloud deploy. Every phase ships something inspectable.",
-   decisions:['Phased delivery — each phase ships something real and public, instead of one long private build',
-     'Evals before scale: quality gets measured on a golden dataset with published scores — the honest substitute for traffic data when you have no users',
-     'The backend holds the API key and the system prompt; the browser never touches either',
-     'Claimed capabilities and shipped capabilities are labeled separately — on purpose'],
-   platforms:['Vercel / Render','Claude API','MCP','Terraform'],languages:['TypeScript','Python','React (JSX)'],
-   stack:['React','FastAPI + Pydantic','RAG + vector search','Agents & tool use','MCP server','Evals + observability','Terraform + CI/CD'],
-   highlights:['Built — an interviewable AI assistant (FastAPI + Claude), wired into this site','Next — RAG with citations over my real work','Planned — a published MCP server, queryable from Claude','Planned — public evals, tracing, and a cost/latency dashboard','Planned — cloud deployment defined in Terraform'],
-   relevance:'Purpose-built around what 2026 AI-engineering roles actually screen for — RAG, agents, MCP, and above all evals and observability — on top of a real full-stack app with cloud, IaC, and CI/CD. Rather than list these skills, it proves them by being built with them, in public, phase by phase.',
-   live:'',github:'https://github.com/samchill93/samuel-ai-api',images:[]},
-  {id:'cadence',name:'Cadence',cat:'AI / LLM',role:'AI Support Assistant · 2026',accent:'#2f5bd6',
-   blurb:'Custom AI customer-support chatbot on the Claude API — grounded, honest, and live.',
-   desc:"Cadence answers customer questions from a product's real knowledge instead of making things up. A React frontend talks to a serverless function that holds the API key and calls Claude with a carefully engineered system prompt. When it doesn't know — or a question needs a human, like billing — it says so and hands off cleanly.",
-   decisions:['API key lives server-side in a serverless function — the browser never sees it',
-     'Grounding via an engineered system prompt instead of RAG: the knowledge base is small and bounded, so retrieval would add latency and moving parts without accuracy gains. RAG is the documented next step as the corpus grows',
-     'Refusal + human handoff over best-guess answers — a support bot that invents policy is worse than one that escalates'],
-   platforms:['Vercel','Claude API','GitHub Actions'],languages:['JavaScript','React (JSX)'],
-   stack:['React','Vite','Vercel Serverless','Claude API'],
-   highlights:['Grounded answers — no hallucination','Clean human handoff for account issues','API key secured server-side','Sample-question chips + mobile UI'],
-   relevance:'A live, working LLM application demonstrating prompt & context engineering, API integration, and serverless architecture — with a written roadmap (RAG with citations, a scored eval suite, tracing) that mirrors exactly what applied-AI teams build next.',
-   live:'https://cadence-support-bot.vercel.app/',github:'https://github.com/samchill93/cadence-support-bot',images:[]},
-  {id:'platform',name:'Consulting Platform',cat:'Full-Stack',role:'Production Web App · Client work',accent:'#0f8a5f',
-   blurb:'A complete production consulting platform — auth, payments, i18n, CI/CD, and 486 automated tests.',
-   desc:'A full-stack platform built and shipped end to end for a consulting practice: Firebase authentication, Stripe payments, a five-language internationalized UI, a modular ES6 architecture, continuous integration and deployment, and a comprehensive automated test suite. Shown anonymously as client work.',
-   decisions:['~486 automated tests plus CI/CD, so changes ship behind quality gates instead of manual QA',
-     'Firebase Auth and Stripe over hand-rolled solutions — security-critical paths run on hardened services; custom code goes where it differentiates',
-     'Five-language internationalization designed into the architecture, not bolted on afterward'],
-   platforms:['Firebase','Google Cloud Run','Stripe','Cloudflare','Sentry'],languages:['JavaScript','TypeScript'],
-   stack:['Modular ES6','Provider pattern','Stripe','Firebase','i18n (5 languages)'],
-   highlights:['486 automated tests','Full CI/CD pipeline','Auth + payments in production','Multi-language, internationalized UI'],
-   relevance:'Proof of production full-stack capability — authentication, payments, testing, CI/CD, and cloud deployment. This is the engineering backbone every $100K+ role quietly assumes you already have; here it exists, shipped, for a real client.',
-   live:'',github:'',images:[]},
-  {id:'meridian',name:'Meridian',cat:'Frontend',role:'Brand Landing Page · 2026',accent:'#c2751a',
-   blurb:'A polished, fully responsive brand landing page — built from scratch, no frameworks.',
-   desc:'A responsive landing page for a fictional specialty coffee brand, built with vanilla HTML, CSS, and JavaScript. It uses a CSS design-token system, fluid typography with clamp(), and a self-reflowing grid so the layout adapts across devices with almost no media queries — deployed with push-to-deploy on Vercel.',
-   decisions:['No framework on purpose — it proves the fundamentals underneath React: semantic HTML, design tokens, fluid type',
-     'Responsive via an auto-fit CSS grid instead of media-query sprawl — the layout reflows from the CSS itself'],
-   platforms:['Vercel','GitHub'],languages:['HTML','CSS','JavaScript'],
-   stack:['Vanilla JS','CSS custom properties','clamp()','CSS Grid'],
-   highlights:['Responsive with minimal media queries','Design-token system','Deployed with push-to-deploy'],
-   relevance:'Frontend fundamentals and craft without leaning on a framework — clean, accessible, responsive UI, deployed. A small piece kept small on purpose.',
-   live:'https://meridian-landing-mu.vercel.app/',github:'https://github.com/samchill93/meridian-landing',images:[]},
-  {id:'wirld',name:'Wirld',cat:'AI / Generative',role:'AI Story Engine · In progress',accent:'#7c3aed',wip:true,
-   blurb:'An interactive story engine with LLM narration, generative imagery, and world-state memory — a build log, not a shipped product.',
-   desc:'Wirld generates interactive stories with Claude-driven narration and AI-generated imagery, backed by a persistent world-state memory system that keeps characters, places, and history consistent across a session. Built with React + Vite and the Anthropic SDK. Presented as in-progress, deliberately: this is where I experiment.',
-   decisions:['World-state persisted outside the prompt, so characters and places stay consistent after the story outgrows the context window',
-     'Labeled in-progress on purpose — unfinished work is shown as a build log, never as a shipped product'],
-   platforms:['Anthropic API','xAI Grok (imagery)','Vercel'],languages:['JavaScript','TypeScript','React (JSX)'],
-   stack:['React','Vite','Tailwind CSS','Anthropic SDK'],
-   highlights:['Persistent world-state memory','AI-generated imagery','LLM-driven narration'],
-   relevance:'Depth in stateful LLM systems and generative AI — memory beyond the context window is a real engineering problem, and this is where I work on it.',
-   live:'',github:'',images:[]},
-];
+// Feature flags — build once, use everywhere. Locked features render an honest locked-state
+// card; flipping one to true the week its module ships is a one-line change.
+const FEATURES = {
+  telemetry:        true,   // Live Telemetry Strip     — Tier 1
+  xray:             true,   // Architecture X-Ray       — Tier 1
+  costFooter:       true,   // Honest Cost Footer        — Tier 1
+  citations:        false,  // Citations You Can Touch  — unlocks: Module 1
+  honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
+  glassBox:         false,  // Glass-Box Panel          — Module 3; public after Module 6
+  evalsDash:        false,  // Evals Dashboard          — unlocks: Module 2
+  metricsPage:      false,  // Live Metrics Page        — unlocks: Module 4
+  jdMatcher:        false,  // JD Matcher               — Module 5; public after Module 6
+  mcpSection:       false,  // MCP section              — unlocks: Module 5
+};
 
-const list=document.getElementById('list');
-PROJECTS.forEach((p,i)=>{
-  const r=document.createElement('div'); r.className='row';
-  r.innerHTML=`<div class="num">0${i+1}</div>
-    <div class="info"><h3>${p.name}</h3><p>${p.blurb}</p></div>
-    <div class="cat">${p.cat}<b>${p.role.split('·').pop().trim()}</b></div>
-    <div class="arr">↗</div>`;
-  r.onclick=()=>open(p.id);
-  list.appendChild(r);
-});
+// --- Live Telemetry Strip (1.1): proves this is a live production system. Zero LLM cost. ---
+(function () {
+  const strip = document.getElementById("telemetry");
+  if (!FEATURES.telemetry) { if (strip) strip.style.display = "none"; return; }
+  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:8000" : "https://samuel-ai-api.onrender.com";
+  const dot = document.getElementById("tDot"), out = document.getElementById("tStatus");
+  let version = null;
+  function ago(iso) {
+    const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 60) return Math.floor(s) + "s";
+    if (s < 3600) return Math.floor(s / 60) + "m";
+    if (s < 86400) return Math.floor(s / 3600) + "h";
+    return Math.floor(s / 86400) + "d";
+  }
+  async function getVersion() {
+    try { const r = await fetch(API_BASE + "/version", { cache: "no-store" }); if (r.ok) version = await r.json(); } catch (e) {}
+  }
+  async function ping() {
+    const t0 = performance.now();
+    try {
+      const r = await fetch(API_BASE + "/health", { cache: "no-store" });
+      if (!r.ok) throw new Error();
+      const ms = Math.round(performance.now() - t0);
+      dot.className = "tdot live";
+      let txt = "API: live · " + ms + "ms";
+      if (version) txt += " · deployed " + ago(version.deployed_at) + " ago · " + version.sha;
+      out.textContent = txt;
+    } catch (e) {
+      dot.className = "tdot down";
+      out.textContent = "API: unreachable right now";   // never cache a green dot
+    }
+  }
+  getVersion().then(ping);
+  setInterval(function () { if (!version) getVersion(); ping(); }, 60000);  // >= 60s poll
+})();
+</script>
 
-const scrim=document.getElementById('scrim'),mgal=document.getElementById('mgal'),mbody=document.getElementById('mbody');
-let gi=0,gc=0;
-function open(id){
-  const p=PROJECTS.find(x=>x.id===id);
-  const imgs=p.images&&p.images.length?p.images:null; gc=imgs?imgs.length:3; gi=0;
-  let slides=''; for(let i=0;i<gc;i++){slides+= imgs?`<div class="slide"><img src="${imgs[i]}"></div>`:`<div class="slide"><div class="ph" style="--a:${p.accent}"><b>${p.name}</b><span>Screenshot ${i+1} — add your image</span></div></div>`;}
-  let dots=''; for(let i=0;i<gc;i++)dots+=`<button class="dot${i===0?' on':''}" data-i="${i}"></button>`;
-  mgal.innerHTML=`<div class="track" id="track">${slides}</div>${gc>1?`<button class="gnav prev" onclick="slide(-1)">‹</button><button class="gnav next" onclick="slide(1)">›</button>`:''}<div class="dots">${dots}</div>`;
-  const field=(l,a)=>`<div class="field"><h4>${l}</h4><div class="chips">${a.map(v=>`<span class="chip">${v}</span>`).join('')}</div></div>`;
-  mbody.innerHTML=`<div class="mcat">${p.cat}</div><h2>${p.name}</h2><div class="mrole">${p.role}</div>
-    <p class="mdesc">${p.desc}</p>
-    ${p.decisions?`<div class="field"><h4>Key decisions &amp; trade-offs</h4><ul class="hl">${p.decisions.map(d=>`<li>${d}</li>`).join('')}</ul></div>`:''}
-    ${field('Platforms',p.platforms)}${field('Languages',p.languages)}${field('Stack',p.stack)}
-    <div class="field"><h4>Highlights</h4><ul class="hl">${p.highlights.map(h=>`<li>${h}</li>`).join('')}</ul></div>
-    <div class="rel"><h4 style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px">Why it matters for the role</h4><p>${p.relevance}</p></div>
-    <div class="mbtns"><a class="mbtn p ${p.live?'':'dis'}" href="${p.live||'#'}" target="_blank">${p.live?'Live demo ↗':(p.wip?'In progress':'Private')}</a><a class="mbtn g ${p.github?'':'dis'}" href="${p.github||'#'}" target="_blank">${p.github?'GitHub ↗':(p.wip?'Coming soon':'Private repo')}</a></div>`;
-  document.querySelectorAll('.dot').forEach(d=>d.onclick=()=>{gi=+d.dataset.i;render();});
-  document.getElementById('mbody').scrollTop=0;
-  scrim.classList.add('open');
-}
-function slide(d){gi=(gi+d+gc)%gc;render();}
-function render(){const t=document.getElementById('track');if(t)t.style.transform=`translateX(-${gi*100}%)`;document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===gi));}
-function close(){scrim.classList.remove('open');}
-document.getElementById('mclose').onclick=close;
-scrim.onclick=e=>{if(e.target===scrim)close();};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-document.querySelectorAll('[data-edit]').forEach(a=>a.onclick=e=>{e.preventDefault();alert('Add your LinkedIn / email here in the code (search for data-edit).');});
+<script>
+// --- Inquiry form as a live API demo (1.4). Submits to the typed /inquiry endpoint and
+// surfaces its real behaviour: validated 201, prettified 422s, honest success pipeline. ---
+(function () {
+  const form = document.getElementById("inquiryForm");
+  if (!form) return;
+  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:8000" : "https://samuel-ai-api.onrender.com";
+  const out = document.getElementById("iStatus");
+  const btn = document.getElementById("iSubmit");
+  const toggle = document.getElementById("schemaToggle");
+  const schema = document.getElementById("schemaBox");
+
+  toggle.addEventListener("click", function () {
+    const hidden = schema.hasAttribute("hidden");
+    if (hidden) { schema.removeAttribute("hidden"); toggle.textContent = "Hide the request schema"; }
+    else { schema.setAttribute("hidden", ""); toggle.textContent = "Show the request schema"; }
+  });
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    out.innerHTML = '<span class="pipe">sending…</span>';
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const r = await fetch(API_BASE + "/inquiry", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+      });
+      if (r.status === 201) {
+        out.innerHTML = '<span class="ok">received &rarr; validated &rarr; stored &#10003;</span><br>' +
+          '<span class="pipe">Thanks &mdash; I\'ll be in touch. (Your message was validated by Pydantic and written to Postgres.)</span>';
+        form.reset();
+      } else if (r.status === 422) {
+        const body = await r.json();
+        const errs = (body.detail || []).map(function (d) {
+          const field = Array.isArray(d.loc) ? d.loc[d.loc.length - 1] : "field";
+          return '<span class="err">' + field + ": " + d.msg + " &rarr; rejected server-side by Pydantic</span>";
+        }).join("<br>");
+        out.innerHTML = errs || '<span class="err">Validation failed.</span>';
+      } else {
+        out.innerHTML = '<span class="err">Something went wrong (HTTP ' + r.status + '). Try again shortly.</span>';
+      }
+    } catch (err) {
+      out.innerHTML = '<span class="err">Couldn\'t reach the API right now. Please try again in a moment.</span>';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
 </script>
 
 <!-- Ask-me AI chat widget -->
@@ -404,6 +600,16 @@ async function cwSend(preset){
     const data = await res.json();
     cwSetTyping(false);
     cwAddBubble("bot", data.reply);
+    // Honest cost footer (1.3): real token counts + computed cost from the API response.
+    if (FEATURES.costFooter && data.usage) {
+      const f = document.createElement("div");
+      f.className = "cw-cost";
+      const c = data.usage.cost_usd;
+      const cost = c < 0.0001 ? "<$0.0001" : "~$" + c.toFixed(4);
+      f.textContent = "this answer: " + data.usage.input_tokens.toLocaleString() + " in / " +
+        data.usage.output_tokens.toLocaleString() + " out tokens \u00b7 " + cost;
+      cwMsgsEl().appendChild(f);
+    }
     cwMessages.push({ role: "assistant", content: data.reply });
   } catch (err) {
     cwSetTyping(false);
