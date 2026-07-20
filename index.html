@@ -183,6 +183,23 @@
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;} html.js .reveal{opacity:1;transform:none;}}
   .mark-sub{font-family:var(--body);font-weight:400;font-size:10.5px;letter-spacing:.01em;color:var(--mut);padding-left:12px;border-left:1px solid var(--line2);white-space:nowrap;display:inline-flex;align-items:center;align-self:stretch;}
   @media(max-width:1080px){.mark-sub{display:none;}}
+  /* --- Architecture X-Ray (1.2) --- */
+  .xray{padding:74px 0;border-bottom:1px solid var(--line);}
+  .xr-path{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:28px 0 22px;}
+  .xr-step{display:flex;align-items:center;gap:8px;}
+  .xr-step:not(:last-child)::after{content:"";width:16px;height:1px;background:var(--line2);flex-shrink:0;}
+  .xr-chip{font-family:var(--body);font-size:12.5px;font-weight:500;color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:9px 15px;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:9px;white-space:nowrap;}
+  .xr-chip .n{font-family:var(--mono);font-size:10.5px;color:var(--faint);}
+  .xr-chip:hover{border-color:var(--line2);color:var(--ink);transform:translateY(-1px);}
+  .xr-chip[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),#6f7bff);border-color:transparent;color:#fff;box-shadow:0 10px 26px -12px rgba(91,141,255,.7);}
+  .xr-chip[aria-selected="true"] .n{color:rgba(255,255,255,.7);}
+  .xr-chip:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+  .xr-card{background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:14px;padding:24px;}
+  .xr-card h3{font-family:var(--display);font-weight:600;font-size:19px;color:var(--ink);letter-spacing:-.01em;margin-bottom:5px;}
+  .xr-card .where{font-family:var(--mono);font-size:11px;color:var(--faint);margin-bottom:15px;}
+  .xr-card p{font-size:14.5px;color:var(--ink2);line-height:1.65;margin-bottom:16px;max-width:72ch;}
+  .xr-code{font-family:var(--mono);font-size:12px;background:var(--bg2);color:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;line-height:1.6;white-space:pre;}
+  @media(max-width:600px){.xr-step{width:100%;} .xr-step:not(:last-child)::after{display:none;} .xr-chip{width:100%;}}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -236,6 +253,14 @@
       <div class="road"><span class="rnum">06</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">07</span><span class="rname">Terraform</span><span class="rnote">the whole stack defined as infrastructure-as-code</span><span class="badge planned">Planned</span></div>
     </div>
+  </section>
+
+  <section class="xray reveal" id="xray">
+    <div class="ey">Architecture X-ray</div>
+    <h2>Follow one question through the stack.</h2>
+    <p class="lead">This is the real path a message takes when you ask the assistant something. Every layer below is pulled from the code that is actually running — not a diagram of how it might work. Click through them.</p>
+    <div class="xr-path" id="xrPath" role="tablist" aria-label="Request path layers"></div>
+    <div class="xr-card" id="xrCard" aria-live="polite"></div>
   </section>
 
   <section class="services reveal" id="services">
@@ -463,6 +488,70 @@ const FEATURES = {
     ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
   }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
   els.forEach(function (e) { io.observe(e); });
+})();
+</script>
+
+<script>
+// --- Architecture X-Ray (1.2): static, zero runtime cost. Every snippet is real code. ---
+(function () {
+  const path = document.getElementById("xrPath"), card = document.getElementById("xrCard");
+  if (!path || !card) return;
+  if (typeof FEATURES !== "undefined" && !FEATURES.xray) {
+    const s = document.getElementById("xray"); if (s) s.style.display = "none"; return;
+  }
+  const LAYERS = [
+    { label: "Browser", where: "living-portfolio/index.html",
+      plain: "Everything starts in your browser. The chat widget is plain JavaScript with no framework, and when you send a message it posts the whole conversation to the API as JSON. Notice what it does not carry: the API key. That secret never leaves the server.",
+      code: 'const res = await fetch(CW_API, {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({ messages: cwMessages }),\n});' },
+    { label: "DNS + HTTPS", where: "two clouds: Vercel + Render",
+      plain: "The browser resolves the API hostname and opens an encrypted HTTPS connection to Render, which routes it to the container running the app. The site itself is served from Vercel while the API lives on Render — two separate clouds. That split is exactly why the next layer has to exist.",
+      code: 'const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")\n  ? "http://localhost:8000"\n  : "https://samuel-ai-api.onrender.com";' },
+    { label: "uvicorn", where: "Render start command",
+      plain: "Render boots the app with uvicorn, the server that listens on the port and hands each request to FastAPI. The route handlers are written as plain def rather than async def, so FastAPI runs them in a threadpool — which is why a slow call out to Claude does not freeze the whole server for everyone else.",
+      code: 'uvicorn main:app --host 0.0.0.0 --port $PORT' },
+    { label: "CORS gate", where: "samuel-ai-api/main.py",
+      plain: "Before a browser request reaches any handler, the API checks which website it came from. Production is locked to the live portfolio domain; localhost is only added through an environment variable during development. This is why saving this page to your desktop and opening that copy makes the chat fail — the browser blocks the response.",
+      code: 'DEFAULT_ORIGINS = "https://living-portfolio-chi.vercel.app"\nallowed_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", DEFAULT_ORIGINS).split(",") if o.strip()]' },
+    { label: "FastAPI + Pydantic", where: "samuel-ai-api/main.py",
+      plain: "The request body is validated against a typed model before the handler runs. If a field is missing or the wrong shape, FastAPI returns a 422 listing the exact field errors and the handler never executes. It is the same mechanism the contact form on this page demonstrates live.",
+      code: 'class Message(BaseModel):\n    role: str\n    content: str\n\nclass ChatRequest(BaseModel):\n    messages: list[Message]' },
+    { label: "Claude API", where: "samuel-ai-api/main.py",
+      plain: "Now the server calls Claude, holding the API key so the browser never has to. The system prompt carries what the assistant is allowed to say — including the standing rule that it must never present in-progress work as finished.",
+      code: 'client = Anthropic()\nresponse = client.messages.create(\n    model="claude-haiku-4-5-20251001",\n    max_tokens=1024,\n    system=ABOUT_SAMUEL,\n    messages=claude_messages,\n)' },
+    { label: "Typed response", where: "samuel-ai-api/main.py",
+      plain: "The reply travels back the same way, wrapped in a typed response that also carries the real token counts and what the answer cost. That is where the small cost line under each chat reply comes from — measured from the API response, never estimated.",
+      code: 'usage = Usage(\n    input_tokens=response.usage.input_tokens,\n    output_tokens=response.usage.output_tokens,\n    cost_usd=_answer_cost_usd(response.usage.input_tokens, response.usage.output_tokens),\n)\nreturn ChatResponse(reply=reply_text, usage=usage)' },
+  ];
+  const chips = [];
+  function render(i) {
+    const L = LAYERS[i];
+    card.innerHTML = "";
+    const h = document.createElement("h3"); h.textContent = L.label;
+    const w = document.createElement("div"); w.className = "where"; w.textContent = L.where;
+    const p = document.createElement("p"); p.textContent = L.plain;
+    const pre = document.createElement("pre"); pre.className = "xr-code"; pre.textContent = L.code;
+    card.appendChild(h); card.appendChild(w); card.appendChild(p); card.appendChild(pre);
+    chips.forEach(function (b, j) {
+      b.setAttribute("aria-selected", j === i ? "true" : "false");
+      b.tabIndex = j === i ? 0 : -1;
+    });
+  }
+  LAYERS.forEach(function (L, i) {
+    const step = document.createElement("div"); step.className = "xr-step";
+    const b = document.createElement("button");
+    b.className = "xr-chip"; b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", "false");
+    const n = document.createElement("span"); n.className = "n"; n.textContent = ("0" + (i + 1)).slice(-2);
+    b.appendChild(n); b.appendChild(document.createTextNode(L.label));
+    b.addEventListener("click", function () { render(i); });
+    b.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      const nx = (i + (e.key === "ArrowRight" ? 1 : -1) + LAYERS.length) % LAYERS.length;
+      render(nx); chips[nx].focus();
+    });
+    chips.push(b); step.appendChild(b); path.appendChild(step);
+  });
+  render(0);
 })();
 </script>
 
