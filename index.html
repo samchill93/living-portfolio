@@ -200,6 +200,119 @@
   .xr-card p{font-size:14.5px;color:var(--ink2);line-height:1.65;margin-bottom:16px;max-width:72ch;}
   .xr-code{font-family:var(--mono);font-size:12px;background:var(--bg2);color:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;line-height:1.6;white-space:pre;}
   @media(max-width:600px){.xr-step{width:100%;} .xr-step:not(:last-child)::after{display:none;} .xr-chip{width:100%;}}
+  /* --- Chat widget: elegant refinement --- */
+  #chatPanel{border-radius:20px;}
+  .cw-head{align-items:center;padding:14px 16px;}
+  .cw-id{display:flex;align-items:center;gap:11px;min-width:0;}
+  .cw-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#6f7bff);display:grid;place-items:center;color:#fff;flex-shrink:0;box-shadow:0 6px 18px -8px rgba(91,141,255,.9);}
+  .cw-avatar svg{width:17px;height:17px;}
+  .cw-who h4{font-size:15px;line-height:1.25;}
+  .cw-who p{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut);margin:3px 0 0;}
+  .cw-dot{width:6px;height:6px;border-radius:50%;background:var(--mut);flex-shrink:0;}
+  .cw-dot.live{background:var(--live);box-shadow:0 0 8px rgba(61,220,151,.9);}
+  .cw-dot.down{background:var(--warn);}
+  .cw-msgs{gap:12px;padding:18px 16px 10px;}
+  .cw-row.bot{gap:9px;align-items:flex-end;}
+  .cw-mini{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--accent),#6f7bff);box-shadow:0 4px 12px -5px rgba(91,141,255,.9);}
+  .cw-bubble{max-width:78%;padding:12px 15px;border-radius:16px;line-height:1.6;}
+  .cw-row.bot .cw-bubble{border-bottom-left-radius:6px;}
+  .cw-row.user .cw-bubble{border-bottom-right-radius:6px;box-shadow:0 8px 22px -12px rgba(91,141,255,.9);}
+  .cw-cost{display:inline-flex;align-items:center;font-size:10px;color:var(--mut);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 10px;margin:0 0 2px 33px;align-self:flex-start;}
+  .cw-chips{padding:0 16px 14px;}
+  .cw-input{padding:12px 12px 14px;gap:9px;align-items:center;}
+  .cw-input input{border-radius:99px;padding:11px 16px;}
+  .cw-input button{width:40px;height:40px;border-radius:50%;padding:0;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#6f7bff);flex-shrink:0;box-shadow:0 8px 22px -10px rgba(91,141,255,.9);transition:transform .18s,box-shadow .18s;}
+  .cw-input button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 28px -10px rgba(91,141,255,1);}
+  .cw-input button svg{width:17px;height:17px;}
+  /* --- Chat widget: filled gradient header, curved into the thread --- */
+  #chatPanel{border-radius:20px;overflow:hidden;background:var(--bg2);}
+  .cw-head{display:block;padding:0;border-bottom:none;border-radius:0 0 24px 24px;
+    background:linear-gradient(140deg,var(--accent),#6f7bff);}
+  .cw-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 18px 12px;}
+  .cw-id{display:flex;align-items:center;gap:12px;min-width:0;}
+  .cw-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center;color:#fff;flex-shrink:0;box-shadow:none;}
+  .cw-avatar svg{width:20px;height:20px;}
+  .cw-pre{display:block;font-size:12px;color:rgba(255,255,255,.78);line-height:1.2;}
+  .cw-who h4{font-size:18px;color:#fff;line-height:1.25;margin:1px 0 0;letter-spacing:-.01em;}
+  .cw-close{color:rgba(255,255,255,.85);display:grid;place-items:center;}
+  .cw-close:hover{color:#fff;}
+  .cw-close svg{width:20px;height:20px;}
+  .cw-status{display:flex;align-items:center;gap:8px;padding:0 18px 16px;font-size:12.5px;color:rgba(255,255,255,.85);}
+  .cw-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);flex-shrink:0;}
+  .cw-dot.live{background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.95);}
+  .cw-dot.down{background:#ffb4a2;box-shadow:none;}
+  .cw-msgs{background:var(--bg2);padding:20px 16px 10px;}
+  .cw-chips{background:var(--bg2);}
+  .cw-input{border-top:1px solid var(--line);background:var(--surface);padding:8px 12px 12px;align-items:center;gap:10px;}
+  .cw-input input{background:transparent;border:none;border-radius:0;padding:12px 4px;font-size:14px;}
+  .cw-input input:focus{border:none;box-shadow:none;}
+  .cw-input button{width:46px;height:46px;border-radius:50%;box-shadow:0 10px 26px -10px rgba(91,141,255,1);}
+  .cw-input button svg{width:19px;height:19px;}
+  /* --- Chat suggestions: command-palette rows --- */
+  .cw-chips{flex-direction:column;align-items:stretch;gap:8px;padding:4px 16px 14px;}
+  .cw-chips-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:2px;}
+  .cw-chip{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:var(--body);font-size:13px;font-weight:500;line-height:1.45;
+    color:var(--ink2);background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:12px;padding:11px 13px;cursor:pointer;
+    transition:transform .18s,border-color .18s,box-shadow .18s,color .18s,background .18s;}
+  .cw-chip::after{content:"\2192";margin-left:auto;color:var(--faint);font-size:14px;line-height:1;transition:transform .18s,color .18s;}
+  .cw-chip:hover{color:var(--ink);border-color:var(--accent);transform:translateY(-2px);
+    box-shadow:0 12px 26px -14px rgba(91,141,255,.95);background:linear-gradient(180deg,var(--elev),var(--surface2));}
+  .cw-chip:hover::after{color:var(--accent);transform:translateX(3px);}
+  .cw-chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  /* --- Bot avatar glyph --- */
+  .cw-mini{display:grid;place-items:center;color:#fff;}
+  .cw-mini svg{width:14px;height:14px;}
+  /* --- Collapsed chat bar (replaces the old FAB pill) --- */
+  #chatFab{display:flex;align-items:center;gap:11px;border-radius:16px;padding:9px 12px 9px 11px;text-align:left;
+    background:linear-gradient(140deg,var(--accent),#6f7bff);box-shadow:0 18px 44px -14px rgba(91,141,255,.85);}
+  #chatFab:hover{transform:translateY(-2px);box-shadow:0 24px 54px -14px rgba(91,141,255,1);background:linear-gradient(140deg,var(--accent),#6f7bff);}
+  #chatFab .fab-avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);display:grid;place-items:center;flex-shrink:0;}
+  #chatFab .fab-avatar svg{width:17px;height:17px;}
+  #chatFab .fab-who{display:flex;flex-direction:column;line-height:1.18;}
+  #chatFab .fab-pre{font-size:11px;font-weight:400;color:rgba(255,255,255,.78);}
+  #chatFab .fab-name{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em;}
+  #chatFab .fab-chev{display:grid;place-items:center;margin-left:6px;color:rgba(255,255,255,.9);}
+  #chatFab .fab-chev svg{width:18px;height:18px;}
+  #chatPanel.open{animation:cwUp .22s cubic-bezier(.2,.7,.2,1);}
+  @keyframes cwUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  /* --- Collapsed bar: identical footprint to the expanded header --- */
+  #chatFab{display:block;width:min(384px,calc(100vw - 32px));padding:0;gap:0;border-radius:20px 20px 24px 24px;text-align:left;}
+  #chatFab .fab-top{display:flex;align-items:center;gap:12px;padding:18px 18px 12px;}
+  #chatFab .fab-avatar{width:44px;height:44px;}
+  #chatFab .fab-avatar svg{width:20px;height:20px;}
+  #chatFab .fab-pre{font-size:12px;color:rgba(255,255,255,.78);}
+  #chatFab .fab-name{font-size:18px;}
+  #chatFab .fab-chev{margin-left:auto;}
+  #chatFab .fab-status{display:flex;align-items:center;gap:8px;padding:0 18px 16px;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.85);}
+  /* --- Architecture X-Ray: optional 3D layer (flag: xray3d) --- */
+  .xr-3d{position:relative;height:clamp(360px,42vw,480px);margin:4px 0 22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:radial-gradient(120% 100% at 50% 0%,rgba(91,141,255,.10),transparent 62%),var(--bg2);}
+  .xr-3d[hidden]{display:none;}
+  .xr-3d canvas{display:block;width:100%;height:100%;}
+  .xr-3d .xr-hint{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--faint);pointer-events:none;user-select:none;}
+  /* --- X-Ray stage: visualisation left, detail panel right --- */
+  .xr-stage{display:grid;gap:14px;margin:4px 0 22px;}
+  .xr-stage.has-3d{grid-template-columns:minmax(0,1fr) minmax(290px,380px);
+    height:clamp(440px,56vh,640px);align-items:stretch;}
+  .xr-stage.has-3d .xr-3d{height:100%;margin:0;}
+  .xr-stage.has-3d .xr-card{height:100%;margin:0;padding:22px;overflow-y:auto;overscroll-behavior:contain;}
+  .xr-stage.has-3d .xr-card p{font-size:14px;max-width:none;}
+  .xr-stage.has-3d .xr-code{font-size:11.5px;white-space:pre-wrap;word-break:break-word;}
+  /* Thin scrollbar so the panel doesn't read as a browser default. */
+  .xr-stage.has-3d .xr-card::-webkit-scrollbar{width:8px;}
+  .xr-stage.has-3d .xr-card::-webkit-scrollbar-thumb{background:var(--line2);border-radius:99px;}
+  .xr-stage.has-3d .xr-card::-webkit-scrollbar-track{background:transparent;}
+  /* Below this width a side panel stops being readable, so stack it. */
+  @media(max-width:900px){.xr-stage.has-3d{grid-template-columns:1fr;height:auto;}
+    .xr-stage.has-3d .xr-3d{height:clamp(320px,46vw,420px);}
+    .xr-stage.has-3d .xr-card{height:auto;overflow:visible;}}
+  .xr-3d .xr-3d-btn{position:absolute;right:12px;bottom:12px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);background:rgba(12,17,27,.72);
+    border:1px solid var(--line2);border-radius:99px;padding:7px 14px;cursor:pointer;
+    backdrop-filter:blur(8px);transition:.16s;}
+  .xr-3d .xr-3d-btn:hover{color:var(--ink);border-color:var(--accent);}
+  .xr-3d .xr-3d-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -260,7 +373,12 @@
     <h2>Follow one question through the stack.</h2>
     <p class="lead">This is the real path a message takes when you ask the assistant something. Every layer below is pulled from the code that is actually running — not a diagram of how it might work. Click through them.</p>
     <div class="xr-path" id="xrPath" role="tablist" aria-label="Request path layers"></div>
-    <div class="xr-card" id="xrCard" aria-live="polite"></div>
+    <div class="xr-stage" id="xrStage">
+      <div class="xr-3d" id="xr3d" hidden>
+        <span class="xr-hint">Drag to orbit · click a node</span>
+      </div>
+      <div class="xr-card" id="xrCard" aria-live="polite"></div>
+    </div>
   </section>
 
   <section class="services reveal" id="services">
@@ -380,6 +498,7 @@ document.querySelectorAll('[data-edit]').forEach(a=>a.onclick=e=>{e.preventDefau
 const FEATURES = {
   telemetry:        true,   // Live Telemetry Strip     — Tier 1
   xray:             true,   // Architecture X-Ray       — Tier 1
+  xray3d:           false,  // 3D X-Ray layer           — off until its gates pass
   costFooter:       true,   // Honest Cost Footer        — Tier 1
   citations:        false,  // Citations You Can Touch  — unlocks: Module 1
   honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
@@ -535,6 +654,9 @@ const FEATURES = {
       b.setAttribute("aria-selected", j === i ? "true" : "false");
       b.tabIndex = j === i ? 0 : -1;
     });
+    // Broadcast the selection so the optional 3D layer can follow the same controller.
+    window.__xrayStep = i;
+    document.dispatchEvent(new CustomEvent("xray:step", { detail: { index: i } }));
   }
   LAYERS.forEach(function (L, i) {
     const step = document.createElement("div"); step.className = "xr-step";
@@ -555,21 +677,95 @@ const FEATURES = {
 })();
 </script>
 
+<script>
+// --- X-Ray 3D layer: lazy, gated, and silently degrading to the 2D X-ray. ---
+(function () {
+  const sec = document.getElementById("xray"), mount = document.getElementById("xr3d");
+  if (!sec || !mount) return;
+
+  // Flag stays false until the gates pass; ?xray3d=1 enables a local preview.
+  const previewing = new URLSearchParams(location.search).has("xray3d");
+  const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  const enabled = (typeof FEATURES !== "undefined" && FEATURES.xray3d) || previewing || isLocal;
+  if (!enabled) return;
+
+  // Capability gates. Any failure here leaves the 2D X-ray as the complete experience.
+  let webgl = false;
+  try {
+    const probe = document.createElement("canvas");
+    webgl = !!(probe.getContext("webgl2") || probe.getContext("webgl"));
+  } catch (e) { webgl = false; }
+  const narrow = window.matchMedia("(max-width: 760px)").matches;
+  const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+  if (!webgl || narrow || lowMem) return;
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let booted = false;
+  const io = new IntersectionObserver(function (ents) {
+    ents.forEach(function (en) {
+      if (!en.isIntersecting || booted) return;
+      booted = true; io.disconnect();
+      // Nothing above is fetched until the section nears the viewport.
+      import("./xray3d.js").then(function (m) {
+        mount.hidden = false;
+        const stage = document.getElementById("xrStage");
+        if (stage) stage.classList.add("has-3d");
+        const api = m.init(mount, {
+          reducedMotion: reduced,
+          debug: isLocal,
+          onSelect: function (i) {
+            const chip = sec.querySelectorAll(".xr-chip")[i];
+            if (chip) chip.click();   // reuse the 2D controller; never a second source of truth
+          },
+        });
+        document.addEventListener("xray:step", function (e) { api.setStep(e.detail.index); });
+        api.setStep(window.__xrayStep || 0);
+      }).catch(function () {
+        mount.hidden = true;   // a failed load must look intentional, never broken
+      });
+    });
+  }, { rootMargin: "300px 0px" });
+  io.observe(sec);
+})();
+</script>
+
 <!-- Ask-me AI chat widget -->
-<button id="chatFab" onclick="cwOpen()" aria-label="Ask my AI">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  Ask my AI
+<button id="chatFab" onclick="cwOpen()" aria-label="Open chat with Samuel's AI">
+  <span class="fab-top">
+    <span class="fab-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none"/><path d="M12 4.4V7"/><rect x="4" y="7" width="16" height="12" rx="4.5"/><circle cx="9.5" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13" r="1.5" fill="currentColor" stroke="none"/></svg></span>
+    <span class="fab-who">
+      <span class="fab-pre">Chat with</span>
+      <span class="fab-name">Samuel's AI</span>
+    </span>
+    <span class="fab-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></span>
+  </span>
+  <span class="fab-status"><span class="cw-dot" id="fabDot"></span><span id="fabStatus">Checking the API…</span></span>
 </button>
 <div id="chatPanel" role="dialog" aria-label="Ask about Samuel">
   <div class="cw-head">
-    <div><h4>Ask about Samuel</h4><p>An AI that knows my work — ask it anything.</p></div>
-    <button class="cw-close" onclick="cwClose()" aria-label="Close">&times;</button>
+    <div class="cw-top">
+      <div class="cw-id">
+        <div class="cw-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none"/><path d="M12 4.4V7"/><rect x="4" y="7" width="16" height="12" rx="4.5"/><circle cx="9.5" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="cw-who">
+          <span class="cw-pre">Chat with</span>
+          <h4>Samuel's AI</h4>
+        </div>
+      </div>
+      <button class="cw-close" onclick="cwClose()" aria-label="Minimize chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="cw-status"><span class="cw-dot" id="cwDot"></span><span id="cwStatus">Checking the API…</span></div>
   </div>
   <div class="cw-msgs" id="cwMsgs"></div>
   <div class="cw-chips" id="cwChips"></div>
   <div class="cw-input">
     <input id="cwInput" type="text" placeholder="Ask about my experience…" autocomplete="off">
-    <button id="cwSend" onclick="cwSend()">Send</button>
+    <button id="cwSend" onclick="cwSend()" aria-label="Send message">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+    </button>
   </div>
 </div>
 
@@ -589,6 +785,7 @@ const CW_SUGGESTIONS = [
   "What's his most impressive project?",
 ];
 
+const CW_BOT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none"/><path d="M12 4.4V7"/><rect x="4" y="7" width="16" height="12" rx="4.5"/><circle cx="9.5" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13" r="1.5" fill="currentColor" stroke="none"/></svg>';
 let cwMessages = [];   // the conversation, in the exact shape the backend expects
 let cwBusy = false;
 const cwMsgsEl = () => document.getElementById("cwMsgs");
@@ -598,24 +795,47 @@ function cwOpen(){
   document.getElementById("chatPanel").classList.add("open");
   document.getElementById("chatFab").classList.add("hidden");
   if(cwMessages.length === 0){ cwAddBubble("bot", CW_GREETING); cwRenderChips(); }
+  cwSyncStatus();
   document.getElementById("cwInput").focus();
+}
+// Mirror the telemetry strip's measured API state into the chat header. Never a cached green dot.
+function cwSyncStatus(){
+  const t = document.getElementById("tDot");
+  const live = t && t.classList.contains("live"), down = t && t.classList.contains("down");
+  const cls = "cw-dot" + (live ? " live" : down ? " down" : "");
+  const txt = live ? "Online · Claude Haiku 4.5" : down ? "API unreachable right now" : "Checking the API…";
+  [["cwDot", "cwStatus"], ["fabDot", "fabStatus"]].forEach(function (ids) {
+    const dot = document.getElementById(ids[0]), s = document.getElementById(ids[1]);
+    if (dot) dot.className = cls;
+    if (s) s.textContent = txt;
+  });
 }
 function cwClose(){
   document.getElementById("chatPanel").classList.remove("open");
   document.getElementById("chatFab").classList.remove("hidden");
 }
 function cwRenderChips(){
-  cwChipsEl().innerHTML = "";
+  const wrap = cwChipsEl();
+  wrap.innerHTML = "";
+  const label = document.createElement("div");
+  label.className = "cw-chips-label";
+  label.textContent = "Try asking";
+  wrap.appendChild(label);
   CW_SUGGESTIONS.forEach(q => {
     const b = document.createElement("button");
-    b.className = "cw-chip"; b.textContent = q;
+    b.className = "cw-chip"; b.type = "button"; b.textContent = q;
     b.onclick = () => cwSend(q);
-    cwChipsEl().appendChild(b);
+    wrap.appendChild(b);
   });
 }
 function cwAddBubble(role, text){
   const row = document.createElement("div");
   row.className = "cw-row " + (role === "user" ? "user" : "bot");
+  if (role !== "user") {
+    const av = document.createElement("div");
+    av.className = "cw-mini"; av.setAttribute("aria-hidden", "true"); av.innerHTML = CW_BOT_ICON;
+    row.appendChild(av);
+  }
   const bub = document.createElement("div");
   bub.className = "cw-bubble";
   bub.textContent = text;   // textContent shows text exactly and safely (no HTML injection)
@@ -640,7 +860,7 @@ function cwSetTyping(on){
   if(on && !t){
     const row = document.createElement("div");
     row.className = "cw-row bot"; row.id = "cwTyping";
-    row.innerHTML = '<div class="cw-bubble"><div class="cw-typing"><span></span><span></span><span></span></div></div>';
+    row.innerHTML = '<div class="cw-mini" aria-hidden="true">' + CW_BOT_ICON + '</div><div class="cw-bubble"><div class="cw-typing"><span></span><span></span><span></span></div></div>';
     cwMsgsEl().appendChild(row);
     cwMsgsEl().scrollTop = cwMsgsEl().scrollHeight;
   } else if(!on && t){ t.remove(); }
@@ -692,6 +912,10 @@ async function cwSend(preset){
 document.getElementById("cwInput").addEventListener("keydown", e => {
   if(e.key === "Enter"){ e.preventDefault(); cwSend(); }
 });
+
+// Keep the collapsed bar's status honest too (reads the telemetry state; no extra requests).
+cwSyncStatus();
+setInterval(cwSyncStatus, 10000);
 </script>
 </body>
 </html>
