@@ -160,11 +160,13 @@ export function init(mount, opts) {
     g.add(cage);
 
     const label = killLabel(makeLabel(STEPS[i].label, "#eef1f7", 0.8));
-    label.position.set(0, 1.75, 0);
+    label.position.set(0, 2.75, 0);
+    label.userData.prio = 2;                 // yields only to the active step's own labels
     g.add(label);
 
     const num = killLabel(makeLabel(String(i + 1).padStart(2, "0"), "#7d8ba6", 0.44, 700));
-    num.position.set(0, 2.42, 0);
+    num.position.set(0, 3.45, 0);
+    num.userData.prio = 0;                   // decorative: first to be nudged aside
     g.add(num);
 
     scene.add(g);
@@ -263,7 +265,11 @@ export function init(mount, opts) {
     const g = new THREE.Group();
     g.visible = false;
     scene.add(g);
-    const L = (text, color, h, w) => { const s = killLabel(makeLabel(text, color, h || 0.42, w || 600)); g.add(s); return s; };
+    const L = (text, color, h, w) => {
+      const s = killLabel(makeLabel(text, color, h || 0.42, w || 600));
+      s.userData.prio = 3;
+      g.add(s); return s;
+    };
     groups[i] = { g, L };
     return groups[i];
   }
@@ -309,7 +315,7 @@ export function init(mount, opts) {
         msgs.forEach((m) => { m.material.opacity = 0; });
         packet.position.copy(a); packet.scale.setScalar(1);
         json.position.set(a.x, a.y + 1.05, a.z); json.material.opacity = 1;
-        post.position.set(a.x, a.y + 1.72, a.z);
+        post.position.set(a.x, a.y + 1.75, a.z);
         post.material.opacity = ease(seg(p, 0.4, 0.56));
       } else {                                         // dispatched — the key stays behind
         const k = ease(seg(p, 0.56, 1));
@@ -340,7 +346,7 @@ export function init(mount, opts) {
       const mid = tmp.copy(a).lerp(b, 0.5);
       packet.position.copy(a); packet.scale.setScalar(1);
       host.position.set(a.x, a.y + 1.75, a.z);
-      resolved.position.set(a.x, a.y + 1.15, a.z);
+      resolved.position.set(a.x, a.y + 1.05, a.z);
       ring.position.copy(a); ring.rotation.x = Math.PI / 2.4; ring.rotation.y = t * 0.5;
 
       if (p < 0.2) {                                   // name resolution
@@ -367,7 +373,7 @@ export function init(mount, opts) {
         ring.scale.setScalar(1.8 - k * 1.1);
         ring.material.opacity = Math.sin(k * Math.PI) * 0.95;
         shellMat.opacity = k * 0.9;
-        enc.position.set(a.x, a.y + 1.15, a.z);
+        enc.position.set(a.x, a.y + 1.05, a.z);
         enc.material.opacity = k;
       } else {                                         // encrypted from here on
         const k = ease(seg(p, 0.8, 1));
@@ -410,7 +416,7 @@ export function init(mount, opts) {
       ear.position.copy(a);
       ear.scale.setScalar(1 + Math.sin(t * 3) * 0.14);          // listening, continuously
       ear.material.opacity = 0.35 + Math.sin(t * 3) * 0.18;
-      port.position.set(a.x, a.y + 1.72, a.z);
+      port.position.set(a.x, a.y + 1.75, a.z);
       port.material.opacity = 1;
       lanes.forEach((m) => { m.material.opacity = 0.75; });
       pool.position.set(a.x, a.y - 1.5, a.z);
@@ -431,7 +437,7 @@ export function init(mount, opts) {
       } else if (p < 0.76) {                           // it stalls here — waiting on Claude
         packet.position.set(a.x, a.y - 0.1 + Math.sin(t * 2) * 0.06, a.z + LANE_Z[1]);
         packet.scale.setScalar(1 + Math.sin(t * 2) * 0.05);
-        slow.position.set(a.x, a.y - 2.1, a.z);
+        slow.position.set(a.x, a.y - 2.35, a.z);
         slow.material.opacity = ease(seg(p, 0.2, 0.32));
       } else {                                         // resumes and moves on
         const k = ease(seg(p, 0.76, 1));
@@ -469,7 +475,7 @@ export function init(mount, opts) {
         const open = ease(k) * 1.35;
         gA.position.y = a.y + 0.85 + open; gB.position.y = a.y - 0.85 - open;
         packet.position.copy(a).setZ(a.z + 2.2 * (1 - ease(seg(p, 0.1, 0.42))));
-        okOrigin.position.set(a.x, a.y + 1.9, a.z);
+        okOrigin.position.set(a.x, a.y + 1.75, a.z);
         okOrigin.material.opacity = ease(seg(p, 0, 0.12));
         okWord.position.set(a.x, a.y - 1.9, a.z);
         okWord.material.opacity = ease(seg(p, 0.16, 0.3));
@@ -484,7 +490,7 @@ export function init(mount, opts) {
         intruder.position.set(a.x, a.y, z);
         intruder.material.opacity = 0.95;
         intruder.rotation.y = t * 2;
-        badOrigin.position.set(a.x, a.y + 1.9, z);
+        badOrigin.position.set(a.x, a.y + 1.75, z);
         badOrigin.material.opacity = 0.95;
         badWord.position.set(a.x, a.y - 1.9, a.z);
         badWord.material.opacity = back > 0 ? 1 : ease(seg(p, 0.56, 0.64));
@@ -520,7 +526,7 @@ export function init(mount, opts) {
       shellMat.opacity = 0.9;
       frame.position.copy(a);
       frame.rotation.y = t * 0.25;
-      model.position.set(a.x, a.y + 2.1, a.z);
+      model.position.set(a.x, a.y + 1.75, a.z);
 
       if (p < 0.44) {                                  // unpacks into the model's real fields
         const k = ease(seg(p, 0.05, 0.34));
@@ -533,10 +539,10 @@ export function init(mount, opts) {
         f2.position.set(a.x, a.y - k * 0.95, a.z - k * 0.5);
         f1.rotation.y = t; f2.rotation.y = -t;
         f1.material.opacity = k * 0.95; f2.material.opacity = k * 0.95;
-        l1.position.copy(f1.position).setY(f1.position.y + 0.5);
-        l2.position.copy(f2.position).setY(f2.position.y - 0.5);
+        l1.position.copy(f1.position).setY(f1.position.y + 0.42);
+        l2.position.copy(f2.position).setY(f2.position.y - 0.42);
         l1.material.opacity = seg(k, 0.5, 1); l2.material.opacity = l1.material.opacity;
-        valid.position.set(a.x, a.y - 2.2, a.z);
+        valid.position.set(a.x, a.y - 2.35, a.z);
         valid.material.opacity = ease(seg(p, 0.32, 0.44));
         bad.material.opacity = 0; err.material.opacity = 0;
       } else if (p < 0.78) {                           // a malformed body is refused at the door
@@ -551,7 +557,7 @@ export function init(mount, opts) {
         bad.rotation.y = t * 2.4;
         frame.material.opacity = 0.5 + (out > 0 ? 0.4 : 0);
         frame.material.color.setHex(out > 0 ? WARN : 0x3d517a);
-        err.position.set(a.x, a.y - 2.2, a.z);
+        err.position.set(a.x, a.y - 2.35, a.z);
         err.material.opacity = ease(seg(p, 0.58, 0.68));
       } else {                                         // the valid one carries on
         const k = ease(seg(p, 0.78, 1));
@@ -639,7 +645,7 @@ export function init(mount, opts) {
         ok.position.set(a.x, a.y + 1.75, a.z);
         ok.material.opacity = ease(seg(p, 0, 0.1));
         chips.forEach((c, j) => {
-          c.position.set(a.x, a.y - 0.85 - j * 0.55, a.z);
+          c.position.set(a.x, a.y - 1.15 - j * 0.78, a.z);
           c.material.opacity = ease(seg(k, 0.2 + j * 0.22, 0.45 + j * 0.22));
         });
       } else {                                         // back along the real path to the browser
@@ -650,7 +656,7 @@ export function init(mount, opts) {
         ok.position.set(tmp.x, tmp.y + 1.75, tmp.z);
         ok.material.opacity = 1 - k * 0.7;
         chips.forEach((c, j) => {
-          c.position.set(tmp.x, tmp.y - 0.85 - j * 0.55, tmp.z);
+          c.position.set(tmp.x, tmp.y - 1.15 - j * 0.78, tmp.z);
           c.material.opacity = 1 - k * 0.7;
         });
       }
@@ -735,15 +741,45 @@ export function init(mount, opts) {
     while (p) { if (p.visible === false) return false; p = p.parent; }
     return true;
   }
+  // Reused slot records; measuring is cached, so this allocates nothing per frame.
+  const slots = [];
+  let nSlots = 0;
+  const slotAt = (i) => (slots[i] || (slots[i] = { el: null, w: 0, h: 0, x: 0, y: 0, prio: 1 }));
+
   function renderLabels() {
+    nSlots = 0;
     for (let i = 0; i < labelEls.length; i++) {
       const o = labelEls[i], el = o.userData.el;
       if (o.material.opacity <= 0.004 || !shown(o)) { el.style.display = "none"; continue; }
       o.getWorldPosition(lv).project(camera);
-      if (lv.z > 1) { el.style.display = "none"; continue; }
+      if (lv.z > 1 || lv.z < -1) { el.style.display = "none"; continue; }
       el.style.display = "";
-      el.style.transform = "translate(-50%,-50%) translate(" +
-        Math.round((lv.x * 0.5 + 0.5) * lw) + "px," + Math.round((-lv.y * 0.5 + 0.5) * lh) + "px)";
+      // offsetWidth forces layout, so measure once per label and reuse.
+      if (!o.userData.w) { o.userData.w = el.offsetWidth || 1; o.userData.h = el.offsetHeight || 1; }
+      const s = slotAt(nSlots++);
+      s.el = el; s.w = o.userData.w; s.h = o.userData.h;
+      s.x = (lv.x * 0.5 + 0.5) * lw;
+      s.y = (-lv.y * 0.5 + 0.5) * lh;
+      s.prio = o.userData.prio === undefined ? 1 : o.userData.prio;
+    }
+
+    // Highest priority holds its exact spot; lower ones step vertically out of the way.
+    // No fixed 3D offset can do this, because which labels collide depends on the
+    // camera angle the viewer happens to have dragged to.
+    const order = slots.slice(0, nSlots).sort((a, b) => b.prio - a.prio);
+    for (let i = 0; i < order.length; i++) {
+      const s = order[i];
+      for (let guard = 0; guard < 12; guard++) {
+        let hit = null;
+        for (let j = 0; j < i; j++) {
+          const p = order[j];
+          if (Math.abs(s.x - p.x) < (s.w + p.w) / 2 + 8 && Math.abs(s.y - p.y) < (s.h + p.h) / 2 + 4) { hit = p; break; }
+        }
+        if (!hit) break;
+        s.y = hit.y + (s.y >= hit.y ? 1 : -1) * ((s.h + hit.h) / 2 + 5);
+      }
+      s.el.style.transform = "translate(-50%,-50%) translate(" +
+        Math.round(s.x) + "px," + Math.round(s.y) + "px)";
     }
   }
 
@@ -845,6 +881,7 @@ export function init(mount, opts) {
   function resize() {
     const w = mount.clientWidth || 1, h = mount.clientHeight || 1;
     lw = w; lh = h;
+    labelEls.forEach((o) => { o.userData.w = 0; });   // re-measure after a resize
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
