@@ -321,6 +321,9 @@
   .xr-3d .xr3d-label.mono{font-family:var(--mono);font-weight:500;letter-spacing:.01em;}
   .xr-3d canvas{outline:none;}
   .xr-3d canvas:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:13px;}
+  /* --- Deployment topology block, inside 'This site is the portfolio' --- */
+  .topo-block{margin:0 0 42px;}
+  .topo-block .topo-lead{font-size:14.5px;color:var(--ink2);line-height:1.6;margin:-6px 0 18px;max-width:70ch;}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -354,6 +357,18 @@
     <h2>It doesn't list my skills — it runs them.</h2>
     <p class="lead">Most portfolios describe what someone can do. This one is the proof: everything below is either live in production right now, or on a public roadmap — each item labeled honestly, never blurred together.</p>
 
+    <div class="topo-block" id="topo">
+      <div class="sub">The system it runs on · six services, real connections</div>
+      <p class="topo-lead">One push rebuilds two independent clouds in parallel. Step through a flow, or click any service to follow it.</p>
+      <div class="xr-path" id="topoPath" role="tablist" aria-label="System flows"></div>
+      <div class="xr-stage" id="topoStage">
+        <div class="xr-3d" id="topo3d" hidden>
+          <span class="xr-hint">Drag to orbit · click a service</span>
+        </div>
+        <div class="xr-card" id="topoCard" aria-live="polite"></div>
+      </div>
+    </div>
+
     <div class="sub">Running now · live in production</div>
     <div class="feature-grid">
       <div class="feature"><span class="badge live">Live</span><h3>Grounded AI assistant</h3><p>The "Ask my AI" chat answers from a curated knowledge base, refuses what it doesn't know, and never exposes the API key.</p></div>
@@ -386,19 +401,6 @@
         <span class="xr-hint">Drag to orbit · click a node</span>
       </div>
       <div class="xr-card" id="xrCard" aria-live="polite"></div>
-    </div>
-  </section>
-
-  <section class="xray reveal" id="topo">
-    <div class="ey">Deployment topology</div>
-    <h2>Where the system actually lives.</h2>
-    <p class="lead">The X-ray above follows one request through time. This is the same system in space — six real services and the connections between them, including the moment a single push rebuilds two independent clouds at once. Click a flow, or click a service.</p>
-    <div class="xr-path" id="topoPath" role="tablist" aria-label="System flows"></div>
-    <div class="xr-stage" id="topoStage">
-      <div class="xr-3d" id="topo3d" hidden>
-        <span class="xr-hint">Drag to orbit · click a service</span>
-      </div>
-      <div class="xr-card" id="topoCard" aria-live="polite"></div>
     </div>
   </section>
 
