@@ -160,12 +160,12 @@ export function init(mount, opts) {
     g.add(cage);
 
     const label = killLabel(makeLabel(STEPS[i].label, "#eef1f7", 0.8));
-    label.position.set(0, 2.75, 0);
+    label.position.set(0, 2.15, 0);
     label.userData.prio = 2;                 // yields only to the active step's own labels
     g.add(label);
 
     const num = killLabel(makeLabel(String(i + 1).padStart(2, "0"), "#7d8ba6", 0.44, 700));
-    num.position.set(0, 3.45, 0);
+    num.position.set(0, 2.78, 0);
     num.userData.prio = 0;                   // decorative: first to be nudged aside
     g.add(num);
 
