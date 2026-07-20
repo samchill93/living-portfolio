@@ -777,7 +777,7 @@ const FEATURES = {
       plain: "The Anthropic key exists in exactly one place: Render's environment panel. It is not in either repository, not in Vercel's build, and it never reaches the browser. You could copy this entire site to your desktop and it still could not spend the key.",
       code: 'client = Anthropic()   # reads ANTHROPIC_API_KEY from the environment\n# no key is ever included in the JSON sent to the browser' },
     { label: "Inquiry (not deployed)", where: "Render → Neon Postgres",
-      plain: "Not live yet, and drawn that way. The contact form validates with Pydantic and writes to Neon Postgres; the code and schema exist and pass tests locally. But the backend commits are still unpushed and DATABASE_URL is not set on Render, so this path is not running in production.",
+      plain: "Half live, and drawn that way. The endpoint is deployed and validating — a malformed email returns a real 422 from production right now. But DATABASE_URL is not set in Render's environment, so the write cannot happen: the API returns 503 rather than pretending the message was received. One environment variable completes this path.",
       code: 'with psycopg.connect(os.environ["DATABASE_URL"]) as conn, conn.cursor() as cur:\n    cur.execute(INSERT_INQUIRY, (...))' },
   ];
   const chips = [];

@@ -32,7 +32,7 @@ const NODES = [
   { id: "render",    label: "Render",        sub: "FastAPI · Starter tier",      pos: [  9.5,  1.0, -3.0] },
   { id: "browser",   label: "Your browser",  sub: "no framework",                pos: [ -4.0, -5.5,  8.5] },
   { id: "anthropic", label: "Anthropic API", sub: "claude-haiku-4-5",            pos: [ 18.0,  2.5, -9.5] },
-  { id: "neon",      label: "Neon Postgres", sub: "schema ready · not deployed", pos: [ 14.5, -4.5,  1.5], pending: true },
+  { id: "neon",      label: "Neon Postgres", sub: "awaiting DATABASE_URL", pos: [ 14.5, -4.5,  1.5], pending: true },
 ];
 const N = {}; NODES.forEach((n, i) => { N[n.id] = i; });
 
@@ -53,7 +53,7 @@ const ARIA = [
   "The browser loads the site itself from Vercel. It is plain HTML, CSS and JavaScript with no framework.",
   "The browser calls the API on Render, which calls Anthropic and returns a typed response carrying token counts and cost.",
   "The Anthropic key exists only in Render's environment. It is not in the repository, not on Vercel, and never reaches the browser.",
-  "Not yet deployed: the inquiry endpoint writes to Neon Postgres. The code and schema exist but are not live.",
+  "The inquiry endpoint is deployed and validating, but DATABASE_URL is not set on Render, so the write to Neon Postgres returns 503 instead of storing.",
 ];
 
 function makeLabel(text, color, worldH, weight) {
@@ -226,7 +226,7 @@ export function init(mount, opts) {
   pushLab.userData.prio = 3; scene.add(pushLab);
   const parallelLab = killLabel(makeLabel("both clouds rebuild in parallel", "#7ce0c0", 0.48, 700));
   parallelLab.userData.prio = 3; scene.add(parallelLab);
-  const pendLab = killLabel(makeLabel("code written · not deployed yet", "#ff9d8c", 0.48, 700));
+  const pendLab = killLabel(makeLabel("deployed · awaiting DATABASE_URL", "#ff9d8c", 0.48, 700));
   pendLab.userData.prio = 3; scene.add(pendLab);
 
   function resetActors() {
