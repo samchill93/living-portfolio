@@ -52,32 +52,29 @@ const seg = (p, a, b) => clamp((p - a) / (b - a), 0, 1);   // sub-phase progress
 
 /** Canvas-texture label. High-resolution texture, small in world units. */
 function makeLabel(text, color, worldH, weight) {
-  const px = 64;
-  const font = (weight || 600) + " " + px + "px Inter, system-ui, sans-serif";
-  const pad = px * 0.35;
-  const c = document.createElement("canvas");
-  let ctx = c.getContext("2d");
-  ctx.font = font;
-  const w = Math.ceil(ctx.measureText(text).width) + pad * 2;
-  const h = Math.ceil(px * 1.6);
-  c.width = w; c.height = h;
-  ctx = c.getContext("2d");
-  ctx.font = font;                    // canvas state resets when width/height are set
-  ctx.fillStyle = color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, w / 2, h / 2);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: tex, transparent: true, depthTest: false, depthWrite: false, opacity: 0,
-  }));
-  const hh = worldH || 0.82;
-  sprite.scale.set((w / h) * hh, hh, 1);
-  sprite.renderOrder = 10;
-  sprite.userData.dispose = () => { tex.dispose(); sprite.material.dispose(); };
-  return sprite;
+  // Identifiers, paths and hostnames read as code; prose does not.
+  const mono = /[_{}[\]/:$]/.test(text) || (/^[a-z0-9._-]+$/.test(text) && /[-._0-9]/.test(text));
+  const el = document.createElement("div");
+  el.className = "xr3d-label" + (mono ? " mono" : "");
+  el.textContent = text;
+  el.style.color = color;                                  // unchanged from the sprite
+  el.style.fontWeight = String(weight || 600);
+  el.style.fontSize = Math.round(10 + ((worldH || 0.8) - 0.4) * 12) + "px";
+  el.style.opacity = "0";
+
+  // A bare Object3D that carries a DOM node. Projected by hand each frame, which
+  // avoids pulling in CSS2DRenderer and the import map its bare specifier needs.
+  const obj = new THREE.Object3D();
+  obj.userData.el = el;
+  let op = 0;
+  Object.defineProperty(obj, "material", {
+    value: {
+      get opacity() { return op; },
+      set opacity(v) { op = v; el.style.opacity = String(v); },
+    },
+  });
+  obj.userData.dispose = () => { if (el.parentNode) el.parentNode.removeChild(el); };
+  return obj;
 }
 
 export function init(mount, opts) {
@@ -93,7 +90,12 @@ export function init(mount, opts) {
   canvas.setAttribute("aria-label", STEPS[0].aria);
   mount.appendChild(canvas);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "low-power" });
+  const labelLayer = document.createElement("div");
+  labelLayer.className = "xr3d-labels";
+  mount.appendChild(labelLayer);
+  const labelEls = [];
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -111,7 +113,12 @@ export function init(mount, opts) {
 
   const disposables = [];
   const track = (o) => { disposables.push(o); return o; };
-  const killLabel = (s) => { disposables.push({ dispose: s.userData.dispose }); return s; };
+  const killLabel = (s) => {
+    labelLayer.appendChild(s.userData.el);
+    labelEls.push(s);
+    disposables.push({ dispose: s.userData.dispose });
+    return s;
+  };
 
   // --- Floor grid -------------------------------------------------------------
   const grid = new THREE.GridHelper(120, 60, 0x1d2740, 0x141c2c);
@@ -133,6 +140,8 @@ export function init(mount, opts) {
 
   // --- Nodes: solid core + STATIC wireframe shell -----------------------------
   // The shell does not spin. Orbiting the camera is what reveals its other faces.
+  const hitGeo = track(new THREE.SphereGeometry(1.6, 10, 6));
+  const hitMat = track(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
   const coreGeo = track(new THREE.IcosahedronGeometry(0.62, 1));
   const cageGeo = track(new THREE.IcosahedronGeometry(1.02, 0));
   const nodes = ctrl.map((p, i) => {
@@ -159,7 +168,10 @@ export function init(mount, opts) {
     g.add(num);
 
     scene.add(g);
-    return { g, core, coreMat, cage, cageMat, label, num };
+    const hit = new THREE.Mesh(hitGeo, hitMat);   // invisible, generous click target
+    g.add(hit);
+
+    return { g, core, coreMat, cage, cageMat, label, num, hit };
   });
 
   // --- The request packet -----------------------------------------------------
@@ -173,6 +185,37 @@ export function init(mount, opts) {
   const shellMat = track(new THREE.MeshBasicMaterial({ color: SAFE, wireframe: true, transparent: true, opacity: 0 }));
   packet.add(new THREE.Mesh(shellGeo, shellMat));
   scene.add(packet);
+
+  // Motion trail. Additive points fading to black toward the tail, so the packet
+  // reads as travelling rather than jumping between frames.
+  const TRAIL = 44;
+  const trailPos = new Float32Array(TRAIL * 3);
+  const trailCol = new Float32Array(TRAIL * 3);
+  for (let i = 0; i < TRAIL; i++) {
+    const k = (1 - i / TRAIL) * 0.85;
+    trailCol[i * 3] = 0.36 * k; trailCol[i * 3 + 1] = 0.55 * k; trailCol[i * 3 + 2] = k;
+  }
+  const trailGeo = track(new THREE.BufferGeometry());
+  trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
+  trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
+  const trailMat = track(new THREE.PointsMaterial({
+    size: 0.17, vertexColors: true, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  }));
+  scene.add(new THREE.Points(trailGeo, trailMat));
+  // Collapse the trail so a step change doesn't streak a line across the scene.
+  function seedTrail(v) {
+    for (let i = 0; i < TRAIL; i++) { trailPos[i * 3] = v.x; trailPos[i * 3 + 1] = v.y; trailPos[i * 3 + 2] = v.z; }
+    trailGeo.attributes.position.needsUpdate = true;
+  }
+  seedTrail(ctrl[0]);
+
+  const pulseGeo = track(new THREE.TorusGeometry(1, 0.018, 6, 44));
+  const pulseMat = track(new THREE.MeshBasicMaterial({
+    color: ACCENT, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false,
+  }));
+  const pulseRing = new THREE.Mesh(pulseGeo, pulseMat);
+  scene.add(pulseRing);
 
   // --- (1) The connection pulse: energy flowing INTO the active node ----------
   const FLOW = 80;
@@ -220,7 +263,7 @@ export function init(mount, opts) {
     const g = new THREE.Group();
     g.visible = false;
     scene.add(g);
-    const L = (text, color, h) => { const s = killLabel(makeLabel(text, color, h || 0.42, 600)); g.add(s); return s; };
+    const L = (text, color, h, w) => { const s = killLabel(makeLabel(text, color, h || 0.42, w || 600)); g.add(s); return s; };
     groups[i] = { g, L };
     return groups[i];
   }
@@ -627,6 +670,7 @@ export function init(mount, opts) {
     step = i; stepT = 0;
     canvas.setAttribute("aria-label", STEPS[i].aria);
     groups.forEach((gr, j) => { gr.g.visible = j === i; });
+    seedTrail(at(i));
     packet.scale.setScalar(1);
     if (paused) renderOnce();
   }
@@ -634,14 +678,15 @@ export function init(mount, opts) {
   // --- Interaction ------------------------------------------------------------
   const ray = new THREE.Raycaster();
   const ptr = new THREE.Vector2();
+  const hitTargets = nodes.map((n) => n.hit);
 
   function pick(e) {
     const r = canvas.getBoundingClientRect();
     ptr.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     ptr.y = -((e.clientY - r.top) / r.height) * 2 + 1;
     ray.setFromCamera(ptr, camera);
-    const hits = ray.intersectObjects(nodes.map((n) => n.core), false);
-    return hits.length ? nodes.findIndex((n) => n.core === hits[0].object) : -1;
+    const hits = ray.intersectObjects(hitTargets, false);
+    return hits.length ? hitTargets.indexOf(hits[0].object) : -1;
   }
 
   const onDown = (e) => {
@@ -678,16 +723,41 @@ export function init(mount, opts) {
   const offset = new THREE.Vector3();
   const scl = new THREE.Vector3();
   const AX_Y = new THREE.Vector3(0, 1, 0);
+  const AX_X = new THREE.Vector3(1, 0, 0);
+  const RIM_OFF = new THREE.Vector3(0, 2, 4);
+  const lv = new THREE.Vector3();
+  let lw = 1, lh = 1;
+
+  // Hand-rolled CSS2D: project each label to screen space and place the DOM node.
+  // Ancestor visibility is walked explicitly, so a hidden step can't strand a label.
+  function shown(o) {
+    let p = o;
+    while (p) { if (p.visible === false) return false; p = p.parent; }
+    return true;
+  }
+  function renderLabels() {
+    for (let i = 0; i < labelEls.length; i++) {
+      const o = labelEls[i], el = o.userData.el;
+      if (o.material.opacity <= 0.004 || !shown(o)) { el.style.display = "none"; continue; }
+      o.getWorldPosition(lv).project(camera);
+      if (lv.z > 1) { el.style.display = "none"; continue; }
+      el.style.display = "";
+      el.style.transform = "translate(-50%,-50%) translate(" +
+        Math.round((lv.x * 0.5 + 0.5) * lw) + "px," + Math.round((-lv.y * 0.5 + 0.5) * lh) + "px)";
+    }
+  }
 
   function draw(dt, t) {
     camTarget.lerp(at(step), 1 - Math.pow(0.001, dt));
-    offset.set(0, 3.6, 12.5);
-    offset.applyAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
-    offset.applyAxisAngle(AX_Y, BASE_YAW + yaw);
+    // A slow idle orbit keeps the scene alive; it yields the moment the viewer drags.
+    const idle = dragging ? 0 : Math.sin(t * 0.19) * 0.055;
+    offset.set(0, 3.6 + Math.sin(t * 0.27) * 0.22, 12.5);
+    offset.applyAxisAngle(AX_X, pitch);
+    offset.applyAxisAngle(AX_Y, BASE_YAW + yaw + idle);
     camPos.copy(camTarget).add(offset);
     camera.position.lerp(camPos, 1 - Math.pow(0.002, dt));
     camera.lookAt(camTarget);
-    rim.position.copy(camTarget).add(new THREE.Vector3(0, 2, 4));
+    rim.position.copy(camTarget).add(RIM_OFF);
 
     nodes.forEach((n, i) => {
       const on = i === step, hot = i === hover;
@@ -706,13 +776,32 @@ export function init(mount, opts) {
 
     updateFlow(t);
     P[step].update(t);
+
+    trailPos.copyWithin(3, 0, (TRAIL - 1) * 3);          // newest sample first
+    trailPos[0] = packet.position.x;
+    trailPos[1] = packet.position.y;
+    trailPos[2] = packet.position.z;
+    trailGeo.attributes.position.needsUpdate = true;
+
+    const pr = (t % 2.4) / 2.4;                          // a ring leaving the active node
+    pulseRing.position.copy(at(step));
+    pulseRing.quaternion.copy(camera.quaternion);        // always face the viewer
+    pulseRing.scale.setScalar(0.7 + pr * 2.2);
+    pulseMat.opacity = (1 - pr) * 0.45;
     packet.rotation.y = t * 0.8;
     packet.rotation.x = t * 0.4;
     renderer.render(scene, camera);
+    renderLabels();
   }
 
   // Frame counter — so "is it actually animating?" is a measurement, not an opinion.
-  let frames = 0, fpsMark = 0, fps = 0;
+  let frames = 0, fpsMark = 0, fps = 0, quality = 2, lowStreak = 0;
+
+  function applyQuality() {
+    const cap = quality >= 2 ? 2 : quality === 1 ? 1.5 : 1;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
+    resize();
+  }
 
   function frame() {
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -728,10 +817,14 @@ export function init(mount, opts) {
     }
     frames++;
     fpsMark += dt;
-    if (debug && fpsMark >= 0.5) {
+    if (fpsMark >= 0.5) {
       fps = Math.round(frames / fpsMark);
       frames = 0; fpsMark = 0;
-      if (hint) hint.textContent = "drag to orbit · click a node · " + fps + " fps";
+      // Degrade instead of assuming the viewer has the machine this was built on.
+      if (fps < 45 && quality > 0) {
+        if (++lowStreak >= 4) { quality--; lowStreak = 0; applyQuality(); }
+      } else lowStreak = 0;
+      if (debug && hint) hint.textContent = "drag to orbit · click a node · " + fps + " fps · q" + quality;
     }
     raf = requestAnimationFrame(frame);
   }
@@ -751,6 +844,7 @@ export function init(mount, opts) {
 
   function resize() {
     const w = mount.clientWidth || 1, h = mount.clientHeight || 1;
+    lw = w; lh = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -786,6 +880,19 @@ export function init(mount, opts) {
   syncBtn();
   mount.appendChild(btn);
 
+  // Arrows walk the pipeline, space toggles motion. The canvas takes focus so the
+  // visualisation is reachable without a pointer.
+  canvas.tabIndex = 0;
+  canvas.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight Space");
+  const onKey = (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") onSelect(Math.min(STEPS.length - 1, step + 1));
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") onSelect(Math.max(0, step - 1));
+    else if (e.key === " " || e.key === "Spacebar") btn.click();
+    else return;
+    e.preventDefault();
+  };
+  canvas.addEventListener("keydown", onKey);
+
   groups.forEach((gr, j) => { gr.g.visible = j === 0; });
   resize();
 
@@ -806,8 +913,11 @@ export function init(mount, opts) {
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("click", onClick);
+      canvas.removeEventListener("keydown", onKey);
       disposables.forEach((o) => { try { o.dispose(); } catch (e) {} });
       renderer.dispose();
+      if (btn.parentNode) btn.parentNode.removeChild(btn);
+      if (labelLayer.parentNode) labelLayer.parentNode.removeChild(labelLayer);
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
     },
   };
