@@ -389,6 +389,19 @@
     </div>
   </section>
 
+  <section class="xray reveal" id="topo">
+    <div class="ey">Deployment topology</div>
+    <h2>Where the system actually lives.</h2>
+    <p class="lead">The X-ray above follows one request through time. This is the same system in space — six real services and the connections between them, including the moment a single push rebuilds two independent clouds at once. Click a flow, or click a service.</p>
+    <div class="xr-path" id="topoPath" role="tablist" aria-label="System flows"></div>
+    <div class="xr-stage" id="topoStage">
+      <div class="xr-3d" id="topo3d" hidden>
+        <span class="xr-hint">Drag to orbit · click a service</span>
+      </div>
+      <div class="xr-card" id="topoCard" aria-live="polite"></div>
+    </div>
+  </section>
+
   <section class="services reveal" id="services">
     <div class="ey">Work with me</div>
     <h2>Hire me to build it.</h2>
@@ -507,6 +520,8 @@ const FEATURES = {
   telemetry:        true,   // Live Telemetry Strip     — Tier 1
   xray:             true,   // Architecture X-Ray       — Tier 1
   xray3d:           false,  // 3D X-Ray layer           — off until its gates pass
+  topology:         true,   // Deployment Topology      — Tier 1
+  topology3d:       false,  // 3D topology layer        — off until its gates pass
   costFooter:       true,   // Honest Cost Footer        — Tier 1
   citations:        false,  // Citations You Can Touch  — unlocks: Module 1
   honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
@@ -728,6 +743,101 @@ const FEATURES = {
         });
         document.addEventListener("xray:step", function (e) { api.setStep(e.detail.index); });
         api.setStep(window.__xrayStep || 0);
+      }).catch(function () {
+        mount.hidden = true;   // a failed load must look intentional, never broken
+      });
+    });
+  }, { rootMargin: "300px 0px" });
+  io.observe(sec);
+})();
+</script>
+
+<script>
+// --- Deployment Topology: static by default, with an optional 3D layer. ---
+(function () {
+  const path = document.getElementById("topoPath"), card = document.getElementById("topoCard");
+  if (!path || !card) return;
+  if (typeof FEATURES !== "undefined" && !FEATURES.topology) {
+    const s = document.getElementById("topo"); if (s) s.style.display = "none"; return;
+  }
+  // Every line here is checked against main.py or the deploy config. Nothing aspirational.
+  const FLOWS = [
+    { label: "Deploy", where: "GitHub → Vercel + Render",
+      plain: "One push deploys two independent clouds. Vercel rebuilds the static site; Render rebuilds the API container. Neither knows the other exists — they are triggered separately by the same commit, which is why either half can be deployed or rolled back on its own.",
+      code: 'git push origin main\n#  → Vercel   rebuilds living-portfolio  (static)\n#  → Render   rebuilds samuel-ai-api     (container)' },
+    { label: "Page load", where: "Vercel CDN",
+      plain: "The site itself is static: HTML, CSS and JavaScript served from Vercel. No framework, no build step, no server rendering. The only dynamic thing on the page is whatever the API returns.",
+      code: 'index.html   — one file, no bundler\nxray3d.js    — loaded lazily, only when the section is near' },
+    { label: "Chat request", where: "Browser → Render → Anthropic",
+      plain: "The browser calls Render, which holds the Anthropic key and makes the model call server-side. The reply comes back typed, carrying the real token counts and the computed cost. Two separate clouds is precisely why the CORS layer has to exist at all.",
+      code: 'response = client.messages.create(\n    model="claude-haiku-4-5-20251001",\n    max_tokens=1024,\n    system=ABOUT_SAMUEL,\n    messages=claude_messages,\n)' },
+    { label: "Where the key lives", where: "Render environment only",
+      plain: "The Anthropic key exists in exactly one place: Render's environment panel. It is not in either repository, not in Vercel's build, and it never reaches the browser. You could copy this entire site to your desktop and it still could not spend the key.",
+      code: 'client = Anthropic()   # reads ANTHROPIC_API_KEY from the environment\n# no key is ever included in the JSON sent to the browser' },
+    { label: "Inquiry (not deployed)", where: "Render → Neon Postgres",
+      plain: "Not live yet, and drawn that way. The contact form validates with Pydantic and writes to Neon Postgres; the code and schema exist and pass tests locally. But the backend commits are still unpushed and DATABASE_URL is not set on Render, so this path is not running in production.",
+      code: 'with psycopg.connect(os.environ["DATABASE_URL"]) as conn, conn.cursor() as cur:\n    cur.execute(INSERT_INQUIRY, (...))' },
+  ];
+  const chips = [];
+  function render(i) {
+    const L = FLOWS[i];
+    card.innerHTML = "";
+    const h = document.createElement("h3"); h.textContent = L.label; card.appendChild(h);
+    const w = document.createElement("div"); w.className = "where"; w.textContent = L.where; card.appendChild(w);
+    const p = document.createElement("p"); p.textContent = L.plain; card.appendChild(p);
+    const pre = document.createElement("pre"); pre.className = "xr-code"; pre.textContent = L.code; card.appendChild(pre);
+    chips.forEach(function (b, j) {
+      b.setAttribute("aria-selected", j === i ? "true" : "false");
+      b.tabIndex = j === i ? 0 : -1;
+    });
+    window.__topoStep = i;
+    document.dispatchEvent(new CustomEvent("topo:step", { detail: { index: i } }));
+  }
+  FLOWS.forEach(function (L, i) {
+    const step = document.createElement("div"); step.className = "xr-step";
+    const b = document.createElement("button");
+    b.className = "xr-chip"; b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", "false");
+    b.innerHTML = '<span class="n">' + String(i + 1).padStart(2, "0") + '</span>' + L.label;
+    b.addEventListener("click", function () { render(i); });
+    chips.push(b); step.appendChild(b); path.appendChild(step);
+  });
+  render(0);
+
+  // --- Optional 3D layer -----------------------------------------------------
+  const sec = document.getElementById("topo"), mount = document.getElementById("topo3d");
+  if (!sec || !mount) return;
+  const previewing = new URLSearchParams(location.search).has("topology3d");
+  const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  const enabled = (typeof FEATURES !== "undefined" && FEATURES.topology3d) || previewing || isLocal;
+  if (!enabled) return;
+
+  let webgl = false;
+  try {
+    const probe = document.createElement("canvas");
+    webgl = !!(probe.getContext("webgl2") || probe.getContext("webgl"));
+  } catch (e) { webgl = false; }
+  const narrow = window.matchMedia("(max-width: 760px)").matches;
+  const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+  if (!webgl || narrow || lowMem) return;
+
+  let booted = false;
+  const io = new IntersectionObserver(function (ents) {
+    ents.forEach(function (en) {
+      if (!en.isIntersecting || booted) return;
+      booted = true; io.disconnect();
+      import("./topology3d.js").then(function (m) {
+        mount.hidden = false;
+        const stage = document.getElementById("topoStage");
+        if (stage) stage.classList.add("has-3d");
+        const api = m.init(mount, {
+          debug: isLocal,
+          onSelect: function (i) {
+            const chip = sec.querySelectorAll(".xr-chip")[i];
+            if (chip) chip.click();   // one controller; the 3D never forks the state
+          },
+        });
+        document.addEventListener("topo:step", function (e) { api.setStep(e.detail.index); });
+        api.setStep(window.__topoStep || 0);
       }).catch(function () {
         mount.hidden = true;   // a failed load must look intentional, never broken
       });
