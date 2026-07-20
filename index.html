@@ -4,14 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Samuel Hill — Full-Stack AI Engineer</title>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -321,14 +313,6 @@
     backdrop-filter:blur(8px);transition:.16s;}
   .xr-3d .xr-3d-btn:hover{color:var(--ink);border-color:var(--accent);}
   .xr-3d .xr-3d-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-  /* --- X-Ray 3D: DOM label layer (CSS2DRenderer) --- */
-  .xr-3d .xr3d-labels{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
-  .xr-3d .xr3d-label{position:absolute;font-family:var(--body);font-weight:600;letter-spacing:-.01em;
-    white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);
-    text-shadow:0 1px 10px rgba(4,8,16,.95),0 0 3px rgba(4,8,16,.9);will-change:transform,opacity;}
-  .xr-3d .xr3d-label.mono{font-family:var(--mono);font-weight:500;letter-spacing:.01em;}
-  .xr-3d canvas{outline:none;}
-  .xr-3d canvas:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:13px;}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>

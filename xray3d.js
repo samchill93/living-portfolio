@@ -18,14 +18,7 @@
  *
  * Loaded lazily by index.html; never in the critical path.
  */
-// Resolved by the import map in index.html <head>. The addons below import the bare
-// specifier "three" internally, which is why the map is required rather than optional.
-import * as THREE from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
-import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
 const ACCENT = 0x5b8dff;
 const SAFE = 0x7ce0c0;
@@ -57,33 +50,34 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const ease = (k) => k * k * (3 - 2 * k);
 const seg = (p, a, b) => clamp((p - a) / (b - a), 0, 1);   // sub-phase progress
 
-/**
- * DOM label (CSS2DObject). Real text in the site's own typeface — crisp at any zoom,
- * screen-reader reachable, and zero texture memory. It exposes a `material.opacity`
- * accessor so the animation code drives it exactly like the sprites it replaced.
- */
+/** Canvas-texture label. High-resolution texture, small in world units. */
 function makeLabel(text, color, worldH, weight) {
-  // Identifiers, paths and hostnames read as code; prose does not.
-  const mono = /[_{}[\]/:$]/.test(text) || (/^[a-z0-9._-]+$/.test(text) && /[-._0-9]/.test(text));
-  const el = document.createElement("div");
-  el.className = "xr3d-label" + (mono ? " mono" : "");
-  el.textContent = text;
-  el.style.color = color;
-  el.style.fontWeight = String(weight || 600);
-  el.style.fontSize = Math.round(10 + ((worldH || 0.8) - 0.4) * 12) + "px";
-  el.style.opacity = "0";
-
-  const obj = new CSS2DObject(el);
-  let op = 0;
-  Object.defineProperty(obj, "material", {
-    value: {
-      get opacity() { return op; },
-      // Fully-transparent labels are hidden outright so they can't catch a stray repaint.
-      set opacity(v) { op = v; el.style.opacity = String(v); el.style.visibility = v <= 0.004 ? "hidden" : "visible"; },
-    },
-  });
-  obj.userData.dispose = () => { if (el.parentNode) el.parentNode.removeChild(el); };
-  return obj;
+  const px = 64;
+  const font = (weight || 600) + " " + px + "px Inter, system-ui, sans-serif";
+  const pad = px * 0.35;
+  const c = document.createElement("canvas");
+  let ctx = c.getContext("2d");
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + pad * 2;
+  const h = Math.ceil(px * 1.6);
+  c.width = w; c.height = h;
+  ctx = c.getContext("2d");
+  ctx.font = font;                    // canvas state resets when width/height are set
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, transparent: true, depthTest: false, depthWrite: false, opacity: 0,
+  }));
+  const hh = worldH || 0.82;
+  sprite.scale.set((w / h) * hh, hh, 1);
+  sprite.renderOrder = 10;
+  sprite.userData.dispose = () => { tex.dispose(); sprite.material.dispose(); };
+  return sprite;
 }
 
 export function init(mount, opts) {
@@ -99,37 +93,14 @@ export function init(mount, opts) {
   canvas.setAttribute("aria-label", STEPS[0].aria);
   mount.appendChild(canvas);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "low-power" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  // Filmic response instead of the linear default: highlights roll off rather than clipping.
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(BG, 15, 66);
 
   const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 200);
-
-  // Procedural environment — generated in code, so metalness/roughness finally have
-  // something to reflect without downloading a single byte of HDRI.
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
-  scene.environment = envRT.texture;
-  pmrem.dispose();
-
-  // DOM label layer, sitting over the canvas and transparent to pointer events.
-  const labelLayer = document.createElement("div");
-  labelLayer.className = "xr3d-labels";
-  mount.appendChild(labelLayer);
-  const labelRenderer = new CSS2DRenderer({ element: labelLayer });
-
-  // Bloom. The single biggest visual gain here, and the only pass the GPU really feels —
-  // which is why the quality governor below can switch it off.
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.62, 0.72, 0.2);
-  composer.addPass(bloom);
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
   const key = new THREE.DirectionalLight(0xffffff, 1.15);
@@ -160,18 +131,10 @@ export function init(mount, opts) {
   const tubeMat = track(new THREE.MeshBasicMaterial({ color: 0x30405f, transparent: true, opacity: 0.8 }));
   scene.add(new THREE.Mesh(tubeGeo, tubeMat));
 
-  const glowGeo = track(new THREE.TubeGeometry(curve, 200, 0.15, 6, false));
-  const glowMat = track(new THREE.MeshBasicMaterial({
-    color: 0x24407d, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-  scene.add(new THREE.Mesh(glowGeo, glowMat));
-
   // --- Nodes: solid core + STATIC wireframe shell -----------------------------
   // The shell does not spin. Orbiting the camera is what reveals its other faces.
   const coreGeo = track(new THREE.IcosahedronGeometry(0.62, 1));
   const cageGeo = track(new THREE.IcosahedronGeometry(1.02, 0));
-  const hitGeo = track(new THREE.SphereGeometry(1.6, 10, 6));
-  const hitMat = track(new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
   const nodes = ctrl.map((p, i) => {
     const g = new THREE.Group();
     g.position.copy(p);
@@ -195,11 +158,8 @@ export function init(mount, opts) {
     num.position.set(0, 2.42, 0);
     g.add(num);
 
-    const hit = new THREE.Mesh(hitGeo, hitMat);   // invisible, generous click target
-    g.add(hit);
-
     scene.add(g);
-    return { g, core, coreMat, cage, cageMat, label, num, hit };
+    return { g, core, coreMat, cage, cageMat, label, num };
   });
 
   // --- The request packet -----------------------------------------------------
@@ -213,37 +173,6 @@ export function init(mount, opts) {
   const shellMat = track(new THREE.MeshBasicMaterial({ color: SAFE, wireframe: true, transparent: true, opacity: 0 }));
   packet.add(new THREE.Mesh(shellGeo, shellMat));
   scene.add(packet);
-
-  // Motion trail. Additive points whose colour fades to black toward the tail, so the
-  // packet reads as travelling instead of jumping between frames.
-  const TRAIL = 44;
-  const trailPos = new Float32Array(TRAIL * 3);
-  const trailCol = new Float32Array(TRAIL * 3);
-  for (let i = 0; i < TRAIL; i++) {
-    const k = (1 - i / TRAIL) * 0.9;
-    trailCol[i * 3] = 0.36 * k; trailCol[i * 3 + 1] = 0.55 * k; trailCol[i * 3 + 2] = k;
-  }
-  const trailGeo = track(new THREE.BufferGeometry());
-  trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
-  trailGeo.setAttribute("color", new THREE.BufferAttribute(trailCol, 3));
-  const trailMat = track(new THREE.PointsMaterial({
-    size: 0.17, vertexColors: true, transparent: true, opacity: 0.85,
-    blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-  scene.add(new THREE.Points(trailGeo, trailMat));
-  // Collapse the trail onto a point, so a step change doesn't streak across the scene.
-  function seedTrail(v) {
-    for (let i = 0; i < TRAIL; i++) { trailPos[i * 3] = v.x; trailPos[i * 3 + 1] = v.y; trailPos[i * 3 + 2] = v.z; }
-    trailGeo.attributes.position.needsUpdate = true;
-  }
-  seedTrail(ctrl[0]);
-
-  const pulseGeo = track(new THREE.TorusGeometry(1, 0.018, 6, 44));
-  const pulseMat = track(new THREE.MeshBasicMaterial({
-    color: ACCENT, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-  const pulseRing = new THREE.Mesh(pulseGeo, pulseMat);
-  scene.add(pulseRing);
 
   // --- (1) The connection pulse: energy flowing INTO the active node ----------
   const FLOW = 80;
@@ -291,23 +220,9 @@ export function init(mount, opts) {
     const g = new THREE.Group();
     g.visible = false;
     scene.add(g);
-    const labels = [];
-    const L = (text, color, h, w) => {
-      const s = killLabel(makeLabel(text, color, h || 0.42, w || 600));
-      g.add(s); labels.push(s); return s;
-    };
-    groups[i] = { g, L, labels };
+    const L = (text, color, h) => { const s = killLabel(makeLabel(text, color, h || 0.42, 600)); g.add(s); return s; };
+    groups[i] = { g, L };
     return groups[i];
-  }
-
-  // CSS2DRenderer walks the whole graph and does NOT inherit a parent's visibility,
-  // so an inactive step's labels must be hidden explicitly or they linger on screen.
-  function showGroup(i) {
-    groups.forEach((gr, j) => {
-      const on = j === i;
-      gr.g.visible = on;
-      gr.labels.forEach((s) => { s.visible = on; if (!on) s.material.opacity = 0; });
-    });
   }
 
   const P = [];   // per-step props
@@ -711,8 +626,7 @@ export function init(mount, opts) {
     if (i == null || i < 0 || i >= STEPS.length || i === step) return;
     step = i; stepT = 0;
     canvas.setAttribute("aria-label", STEPS[i].aria);
-    showGroup(i);
-    seedTrail(at(i));
+    groups.forEach((gr, j) => { gr.g.visible = j === i; });
     packet.scale.setScalar(1);
     if (paused) renderOnce();
   }
@@ -720,15 +634,14 @@ export function init(mount, opts) {
   // --- Interaction ------------------------------------------------------------
   const ray = new THREE.Raycaster();
   const ptr = new THREE.Vector2();
-  const hitTargets = nodes.map((n) => n.hit);
 
   function pick(e) {
     const r = canvas.getBoundingClientRect();
     ptr.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     ptr.y = -((e.clientY - r.top) / r.height) * 2 + 1;
     ray.setFromCamera(ptr, camera);
-    const hits = ray.intersectObjects(hitTargets, false);
-    return hits.length ? hitTargets.indexOf(hits[0].object) : -1;
+    const hits = ray.intersectObjects(nodes.map((n) => n.core), false);
+    return hits.length ? nodes.findIndex((n) => n.core === hits[0].object) : -1;
   }
 
   const onDown = (e) => {
@@ -765,20 +678,16 @@ export function init(mount, opts) {
   const offset = new THREE.Vector3();
   const scl = new THREE.Vector3();
   const AX_Y = new THREE.Vector3(0, 1, 0);
-  const AX_X = new THREE.Vector3(1, 0, 0);
-  const RIM_OFF = new THREE.Vector3(0, 2, 4);
 
   function draw(dt, t) {
     camTarget.lerp(at(step), 1 - Math.pow(0.001, dt));
-    // A slow idle orbit keeps the scene alive; it yields the moment the viewer drags.
-    const idle = dragging ? 0 : Math.sin(t * 0.19) * 0.055;
-    offset.set(0, 3.6 + Math.sin(t * 0.27) * 0.22, 12.5);
-    offset.applyAxisAngle(AX_X, pitch);
-    offset.applyAxisAngle(AX_Y, BASE_YAW + yaw + idle);
+    offset.set(0, 3.6, 12.5);
+    offset.applyAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
+    offset.applyAxisAngle(AX_Y, BASE_YAW + yaw);
     camPos.copy(camTarget).add(offset);
     camera.position.lerp(camPos, 1 - Math.pow(0.002, dt));
     camera.lookAt(camTarget);
-    rim.position.copy(camTarget).add(RIM_OFF);
+    rim.position.copy(camTarget).add(new THREE.Vector3(0, 2, 4));
 
     nodes.forEach((n, i) => {
       const on = i === step, hot = i === hover;
@@ -797,36 +706,13 @@ export function init(mount, opts) {
 
     updateFlow(t);
     P[step].update(t);
-
-    trailPos.copyWithin(3, 0, (TRAIL - 1) * 3);          // newest sample first
-    trailPos[0] = packet.position.x;
-    trailPos[1] = packet.position.y;
-    trailPos[2] = packet.position.z;
-    trailGeo.attributes.position.needsUpdate = true;
-
-    const pr = (t % 2.4) / 2.4;                          // a ring leaving the active node
-    pulseRing.position.copy(at(step));
-    pulseRing.quaternion.copy(camera.quaternion);        // always face the viewer
-    pulseRing.scale.setScalar(0.7 + pr * 2.2);
-    pulseMat.opacity = (1 - pr) * 0.45;
     packet.rotation.y = t * 0.8;
     packet.rotation.x = t * 0.4;
-    if (quality >= 2) composer.render(); else renderer.render(scene, camera);
-    labelRenderer.render(scene, camera);
+    renderer.render(scene, camera);
   }
 
   // Frame counter — so "is it actually animating?" is a measurement, not an opinion.
-  // It also feeds the quality governor, so the same number that proves the loop runs
-  // is the one that protects slower machines.
-  let frames = 0, fpsMark = 0, fps = 0, quality = 2, lowStreak = 0;
-
-  function applyQuality() {
-    const dpr = quality >= 2 ? Math.min(window.devicePixelRatio || 1, 2)
-      : quality === 1 ? Math.min(window.devicePixelRatio || 1, 1.5) : 1;
-    renderer.setPixelRatio(dpr);
-    composer.setPixelRatio(dpr);
-    resize();
-  }
+  let frames = 0, fpsMark = 0, fps = 0;
 
   function frame() {
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -842,15 +728,10 @@ export function init(mount, opts) {
     }
     frames++;
     fpsMark += dt;
-    if (fpsMark >= 0.5) {
+    if (debug && fpsMark >= 0.5) {
       fps = Math.round(frames / fpsMark);
       frames = 0; fpsMark = 0;
-      // Degrade instead of assuming the viewer has the machine this was built on.
-      // Two seconds under 45fps drops a tier: bloom first, then pixel ratio.
-      if (fps < 45 && quality > 0) {
-        if (++lowStreak >= 4) { quality--; lowStreak = 0; applyQuality(); }
-      } else lowStreak = 0;
-      if (debug && hint) hint.textContent = "drag to orbit · click a node · " + fps + " fps · q" + quality;
+      if (hint) hint.textContent = "drag to orbit · click a node · " + fps + " fps";
     }
     raf = requestAnimationFrame(frame);
   }
@@ -871,8 +752,6 @@ export function init(mount, opts) {
   function resize() {
     const w = mount.clientWidth || 1, h = mount.clientHeight || 1;
     renderer.setSize(w, h, false);
-    composer.setSize(w, h);
-    labelRenderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     if (!running) renderOnce();
@@ -907,22 +786,7 @@ export function init(mount, opts) {
   syncBtn();
   mount.appendChild(btn);
 
-  // Arrows walk the pipeline, space toggles motion. The canvas takes focus so the
-  // visualisation is reachable without a pointer.
-  canvas.tabIndex = 0;
-  canvas.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight Space");
-  const onKey = (e) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") onSelect(Math.min(STEPS.length - 1, step + 1));
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") onSelect(Math.max(0, step - 1));
-    else if (e.key === " " || e.key === "Spacebar") btn.click();
-    else return;
-    e.preventDefault();
-  };
-  canvas.addEventListener("keydown", onKey);
-
-  showGroup(0);
-  // Keep the dark scheme intact — full-strength reflections would wash the panel out.
-  scene.traverse((o) => { if (o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.4; });
+  groups.forEach((gr, j) => { gr.g.visible = j === 0; });
   resize();
 
   // Start now rather than waiting on the observer — if the section is already on screen
@@ -942,13 +806,8 @@ export function init(mount, opts) {
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("click", onClick);
-      canvas.removeEventListener("keydown", onKey);
       disposables.forEach((o) => { try { o.dispose(); } catch (e) {} });
-      envRT.texture.dispose();
-      composer.dispose();
       renderer.dispose();
-      if (btn.parentNode) btn.parentNode.removeChild(btn);
-      if (labelLayer.parentNode) labelLayer.parentNode.removeChild(labelLayer);
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
     },
   };
