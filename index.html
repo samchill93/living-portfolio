@@ -722,7 +722,13 @@ const FEATURES = {
   } catch (e) { webgl = false; }
   const narrow = window.matchMedia("(max-width: 760px)").matches;
   const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
-  if (!webgl || narrow || lowMem) return;
+  // WebGL is the only hard requirement. narrow/low-memory are guards for real visitors
+  // on weak or small devices; on localhost (or a ?flag preview) we always attempt to
+  // load, so the preview is never silently empty — browser zoom alone can trip `narrow`.
+  const dev = previewing || isLocal;
+  if (dev) console.info("[3d gate]", { webgl, narrow, lowMem, deviceMemory: navigator.deviceMemory, cssWidth: window.innerWidth });
+  if (!webgl) return;
+  if (!dev && (narrow || lowMem)) return;
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let booted = false;
@@ -820,7 +826,13 @@ const FEATURES = {
   } catch (e) { webgl = false; }
   const narrow = window.matchMedia("(max-width: 760px)").matches;
   const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
-  if (!webgl || narrow || lowMem) return;
+  // WebGL is the only hard requirement. narrow/low-memory are guards for real visitors
+  // on weak or small devices; on localhost (or a ?flag preview) we always attempt to
+  // load, so the preview is never silently empty — browser zoom alone can trip `narrow`.
+  const dev = previewing || isLocal;
+  if (dev) console.info("[3d gate]", { webgl, narrow, lowMem, deviceMemory: navigator.deviceMemory, cssWidth: window.innerWidth });
+  if (!webgl) return;
+  if (!dev && (narrow || lowMem)) return;
 
   let booted = false;
   const io = new IntersectionObserver(function (ents) {
