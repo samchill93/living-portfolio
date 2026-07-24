@@ -324,6 +324,13 @@
   /* --- Deployment topology block, inside 'This site is the portfolio' --- */
   .topo-block{margin:0 0 42px;}
   .topo-block .topo-lead{font-size:14.5px;color:var(--ink2);line-height:1.6;margin:-6px 0 18px;max-width:70ch;}
+  /* --- Citations You Can Touch (Module 1): source chips under a grounded answer --- */
+  .cw-cites{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 4px 33px;align-self:flex-start;max-width:calc(100% - 40px);}
+  .cw-cites .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);}
+  .cw-cite{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2);background:var(--surface);
+    border:1px solid var(--line);border-radius:99px;padding:3px 9px;line-height:1.3;}
+  .cw-cite::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .cw-cite .path{font-family:var(--mono);font-size:9.5px;color:var(--faint);}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -960,6 +967,33 @@ function cwRenderChips(){
     wrap.appendChild(b);
   });
 }
+// Render the sources a grounded answer cited (Module 1). Global on purpose so it can
+// be exercised from the console before the backend returns citations.
+function cwRenderCitations(cites){
+  if(!Array.isArray(cites) || !cites.length) return;
+  const row = document.createElement("div");
+  row.className = "cw-cites";
+  const lbl = document.createElement("span");
+  lbl.className = "lbl"; lbl.textContent = cites.length === 1 ? "Source" : "Sources";
+  row.appendChild(lbl);
+  cites.forEach(function(c){
+    const chip = document.createElement("span");
+    chip.className = "cw-cite";
+    const name = document.createElement("span");
+    name.textContent = c.title || c.source_path;
+    chip.appendChild(name);
+    // Show the file only when it adds information beyond the title.
+    if(c.source_path && c.title && c.source_path.toLowerCase().indexOf(String(c.title).toLowerCase()) === -1){
+      const p = document.createElement("span");
+      p.className = "path"; p.textContent = c.source_path;
+      chip.appendChild(p);
+    }
+    row.appendChild(chip);
+  });
+  cwMsgsEl().appendChild(row);
+  cwMsgsEl().scrollTop = cwMsgsEl().scrollHeight;
+}
+
 function cwAddBubble(role, text){
   const row = document.createElement("div");
   row.className = "cw-row " + (role === "user" ? "user" : "bot");
@@ -1031,6 +1065,8 @@ async function cwSend(preset){
         data.usage.output_tokens.toLocaleString() + " out tokens \u00b7 " + cost;
       cwMsgsEl().appendChild(f);
     }
+    // Citations You Can Touch (Module 1): render the sources the answer cited.
+    if (data.citations) cwRenderCitations(data.citations);
     cwMessages.push({ role: "assistant", content: data.reply });
   } catch (err) {
     cwSetTyping(false);
