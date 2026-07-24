@@ -340,6 +340,18 @@
   .cw-cite.hi{border-color:var(--accent);color:var(--ink);background:var(--accent-soft);}
   .cw-cite.pulse{animation:cwCitePulse 1.1s ease;}
   @keyframes cwCitePulse{0%{box-shadow:0 0 0 0 rgba(91,141,255,.55);}70%{box-shadow:0 0 0 9px rgba(91,141,255,0);}100%{box-shadow:0 0 0 0 rgba(91,141,255,0);}}
+  /* --- Citation preview popover: brings the source to the marker --- */
+  #cwPop{position:absolute;z-index:70;max-width:250px;width:max-content;background:var(--elev,#1b2030);
+    border:1px solid var(--line2);border-radius:12px;padding:10px 12px;
+    box-shadow:0 20px 46px -14px rgba(0,0,0,.75);opacity:0;transform:translateY(4px);pointer-events:none;
+    transition:opacity .13s ease,transform .13s ease;}
+  #cwPop.show{opacity:1;transform:none;pointer-events:auto;}
+  #cwPop .hd{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+  #cwPop .hd .num{display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 3px;
+    font-family:var(--mono);font-size:9.5px;color:#fff;background:var(--accent);border-radius:4px;}
+  #cwPop .hd .ttl{font-family:var(--display);font-weight:700;font-size:12.5px;color:var(--ink);}
+  #cwPop .snip{font-size:12px;line-height:1.5;color:var(--ink2);}
+  #cwPop .pth{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:6px;}
 </style>
 <script>document.documentElement.classList.add("js");</script>
 </head>
@@ -1006,17 +1018,65 @@ function cwRenderCitations(cites, answerId){
   cwMsgsEl().scrollTop = cwMsgsEl().scrollHeight;
 }
 
-// A marker links to the source chip with the same number, within the same answer.
+// --- Touchable citations: hovering or tapping a [n] previews its source in a popover
+// --- anchored to the marker, so the source comes to the reader (no scrolling to the list).
+const cwCiteData = {};                       // answerId -> citations array (title + snippet)
+let cwPopPinned = false, cwPopMark = null, cwPopHideT = null;
+
 function cwCiteFor(mark){
   return document.querySelector('.cw-cite[data-answer="' + mark.dataset.answer + '"][data-cite="' + mark.dataset.n + '"]');
 }
-function cwJumpToCite(){
-  const chip = cwCiteFor(this);
-  if(!chip) return;
-  chip.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  chip.classList.remove("pulse"); void chip.offsetWidth; chip.classList.add("pulse");
+function cwPopEl(){
+  let p = document.getElementById("cwPop");
+  if(p) return p;
+  p = document.createElement("div");
+  p.id = "cwPop"; p.className = "cw-pop"; p.setAttribute("role", "tooltip");
+  p.innerHTML = '<div class="hd"><span class="num"></span><span class="ttl"></span></div>' +
+                '<div class="snip"></div><div class="pth"></div>';
+  p.addEventListener("mouseenter", function(){ clearTimeout(cwPopHideT); });
+  p.addEventListener("mouseleave", function(){ if(!cwPopPinned) cwHidePop(); });
+  document.getElementById("chatPanel").appendChild(p);
+  return p;
 }
-// Render a bot reply, turning [n] markers into touchable superscript links to the sources.
+function cwPositionPop(mark){
+  const panel = document.getElementById("chatPanel");
+  const pr = panel.getBoundingClientRect(), mr = mark.getBoundingClientRect();
+  const pop = cwPopEl(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = (mr.left - pr.left) + mr.width / 2 - pw / 2;         // centre on the marker
+  left = Math.max(10, Math.min(left, pr.width - pw - 10));        // clamp inside the panel
+  let top = (mr.top - pr.top) - ph - 8;                          // prefer above the marker
+  if(top < 8) top = (mr.top - pr.top) + mr.height + 8;           // flip below if no room
+  pop.style.left = Math.round(left) + "px";
+  pop.style.top = Math.round(top) + "px";
+}
+function cwShowPop(mark){
+  const cites = cwCiteData[mark.dataset.answer];
+  if(!cites) return;
+  const c = cites[parseInt(mark.dataset.n, 10) - 1];
+  if(!c) return;
+  const pop = cwPopEl();
+  pop.querySelector(".num").textContent = mark.dataset.n;
+  pop.querySelector(".ttl").textContent = c.title || c.source_path;
+  pop.querySelector(".snip").textContent = c.snippet ? "\u201C" + c.snippet + (c.snippet.length >= 200 ? "\u2026" : "") + "\u201D" : "";
+  pop.querySelector(".pth").textContent = c.source_path;
+  cwPositionPop(mark);                 // position with content in place, then reveal
+  pop.classList.add("show");
+  const chip = cwCiteFor(mark); if(chip) chip.classList.add("hi");
+}
+function cwHidePop(){
+  cwPopEl().classList.remove("show");
+  document.querySelectorAll(".cw-cite.hi").forEach(function(c){ c.classList.remove("hi"); });
+}
+function cwTogglePin(mark){
+  if(cwPopPinned && cwPopMark === mark){ cwPopPinned = false; cwHidePop(); }
+  else { cwPopPinned = true; cwPopMark = mark; cwShowPop(mark); }
+}
+// A pinned popover (tap, or click) dismisses on an outside click.
+document.addEventListener("click", function(e){
+  if(cwPopPinned && !e.target.closest(".cw-mark") && !e.target.closest("#cwPop")){ cwPopPinned = false; cwHidePop(); }
+});
+
+// Render a bot reply, turning [n] markers into touchable superscript links.
 // Text is added as text nodes and markers as elements, so there is no HTML injection.
 function cwRenderMarks(el, text, answerId){
   const re = /\[(\d+)\]/g;
@@ -1026,12 +1086,12 @@ function cwRenderMarks(el, text, answerId){
     const s = document.createElement("sup");
     s.className = "cw-mark"; s.textContent = m[1];
     s.setAttribute("role", "button"); s.tabIndex = 0;
-    s.setAttribute("aria-label", "Show source " + m[1]);
+    s.setAttribute("aria-label", "Preview source " + m[1]);
     s.dataset.n = m[1]; s.dataset.answer = answerId;
-    s.addEventListener("click", cwJumpToCite);
-    s.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); cwJumpToCite.call(s); } });
-    s.addEventListener("mouseenter", function(){ const c = cwCiteFor(s); if(c) c.classList.add("hi"); });
-    s.addEventListener("mouseleave", function(){ const c = cwCiteFor(s); if(c) c.classList.remove("hi"); });
+    s.addEventListener("mouseenter", function(){ clearTimeout(cwPopHideT); cwPopMark = s; if(!cwPopPinned) cwShowPop(s); });
+    s.addEventListener("mouseleave", function(){ if(!cwPopPinned) cwPopHideT = setTimeout(cwHidePop, 140); });
+    s.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); cwTogglePin(s); });
+    s.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); cwTogglePin(s); } });
     el.appendChild(s);
     last = re.lastIndex;
   }
@@ -1103,6 +1163,7 @@ async function cwSend(preset){
     const data = await res.json();
     cwSetTyping(false);
     const answerId = "cw" + (++cwCiteSeq);
+    cwCiteData[answerId] = data.citations || [];   // markers preview from here
     cwAddBubble("bot", data.reply, answerId);
     // Honest cost footer (1.3): real token counts + computed cost from the API response.
     if (FEATURES.costFooter && data.usage) {
@@ -1133,6 +1194,7 @@ document.getElementById("cwInput").addEventListener("keydown", e => {
 // Keep the collapsed bar's status honest too (reads the telemetry state; no extra requests).
 cwSyncStatus();
 setInterval(cwSyncStatus, 10000);
+cwMsgsEl().addEventListener("scroll", function(){ cwPopPinned = false; cwHidePop(); });
 </script>
 </body>
 </html>
