@@ -69,12 +69,14 @@
   @supports not ((-webkit-background-clip:text) or (background-clip:text)){.hero h1{color:var(--ink);}}
 
   /* Section heads */
-  .build,.services,.inquiry{padding:74px 0;border-bottom:1px solid var(--line);}
-  .build .ey,.services .ey,.inquiry .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-  .build h2,.services h2,.inquiry h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
-  .build .lead,.services .lead,.inquiry .lead{font-size:16px;color:var(--ink2);max-width:640px;}
-  .build .sub,.services .sub{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:42px 0 18px;display:flex;align-items:center;gap:14px;}
-  .build .sub::after,.services .sub::after{content:"";flex:1;height:1px;background:var(--line);}
+  .build,.services,.inquiry,.evals{padding:74px 0;border-bottom:1px solid var(--line);}
+  .build .ey,.services .ey,.inquiry .ey,.evals .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  .build h2,.services h2,.inquiry h2,.evals h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
+  .build .lead,.services .lead,.inquiry .lead,.evals .lead{font-size:16px;color:var(--ink2);max-width:640px;}
+  .build .sub,.services .sub,.evals .sub{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:42px 0 18px;display:flex;align-items:center;gap:14px;}
+  .build .sub::after,.services .sub::after,.evals .sub::after{content:"";flex:1;height:1px;background:var(--line);}
+  .evals .lead a{color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
+  .evals .lead a:hover{border-color:var(--accent);}
 
   /* Badges */
   .badge{display:inline-block;font-family:var(--body);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:6px;}
@@ -99,6 +101,36 @@
   .road .rname{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--ink);}
   .road .rnote{flex:1;font-size:13px;color:var(--mut);}
   .road .badge{margin-left:auto;flex-shrink:0;}
+  .road .rnote a{color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
+  .road .rnote a:hover{border-color:var(--accent);}
+
+  /* Evals (Module 2) */
+  .metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:14px;}
+  .metric{position:relative;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:14px;padding:20px;overflow:hidden;}
+  .metric::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);}
+  .metric .mval{font-family:var(--display);font-weight:700;font-size:29px;letter-spacing:-.02em;color:var(--ink);line-height:1;margin-bottom:9px;}
+  .metric.prov .mval{color:var(--accent-2);}   /* objective, no judgment call */
+  .metric .mlab{font-family:var(--body);font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:9px;}
+  .metric .mnote{font-size:12.5px;color:var(--mut);line-height:1.55;}
+  .evals .sub{flex-wrap:wrap;}
+  .evals .sub .badge{margin-left:2px;white-space:nowrap;}
+
+  .eval-catch{display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(61,220,151,.06),var(--surface));border:1px solid rgba(61,220,151,.22);border-radius:14px;padding:22px;}
+  .eval-catch .badge{align-self:flex-start;}
+  .eval-catch p{font-size:14px;color:var(--ink2);line-height:1.65;}
+  .eval-catch em{color:var(--warn);font-style:italic;}
+  .eval-catch strong{color:var(--ink);font-weight:600;}
+
+  .eval-note{font-size:13.5px;color:var(--mut);line-height:1.65;max-width:700px;margin-top:14px;}
+  .eval-note strong{color:var(--ink2);font-weight:600;}
+
+  .eval-finding{background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:12px;padding:20px 22px;font-size:14px;color:var(--ink2);line-height:1.72;max-width:770px;}
+  .eval-finding .big{font-family:var(--mono);color:var(--accent);font-weight:500;}
+  .eval-finding strong{color:var(--ink);font-weight:600;}
+
+  .eval-links{display:flex;flex-wrap:wrap;gap:22px;margin-top:26px;}
+  .eval-links a{font-size:13.5px;font-weight:600;color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
+  .eval-links a:hover{border-color:var(--accent);}
 
   /* Services */
   .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px;}
@@ -177,7 +209,7 @@
 
   @media (max-width:820px){
     .hero{grid-template-columns:1fr;gap:36px;padding:56px 0;} .portrait,.portrait-mono{width:184px;height:218px;}
-    .build,.services,.inquiry{padding:56px 0;}
+    .build,.services,.inquiry,.evals{padding:56px 0;}
   }
   @media (max-width:600px){.road .rnote{display:none;} .frow{grid-template-columns:1fr;} .wrap{padding:0 22px;}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;} html.js .reveal{opacity:1;transform:none;}}
@@ -362,7 +394,7 @@
   </div>
   <header class="top">
     <div class="mark">Living AI Portfolio<span class="mark-sub">Grounded AI chat · typed API · auto-deploy · live telemetry · cost-metered</span></div>
-    <nav><a href="#build">The Build</a><a href="#services">Services</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#inquiry">Contact</a></nav>
+    <nav><a href="#build">The Build</a><a href="#evals">Evals</a><a href="#services">Services</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#inquiry">Contact</a></nav>
   </header>
 
   <section class="hero reveal">
@@ -410,7 +442,7 @@
     <div class="sub">On the roadmap · built in public, shipping in order</div>
     <div class="roadmap">
       <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge live">Shipped</span></div>
-      <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">published quality scores on a golden dataset</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">quality scores on a 108-case golden dataset — <a href="#evals">see the numbers</a></span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">04</span><span class="rname">Agents + MCP</span><span class="rnote">a tool-using agent and a public MCP server</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">05</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses</span><span class="badge planned">Planned</span></div>
@@ -429,6 +461,44 @@
         <span class="xr-hint">Drag to orbit · click a node</span>
       </div>
       <div class="xr-card" id="xrCard" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="evals reveal" id="evals">
+    <div class="ey">Evals · Module 2</div>
+    <h2>I don't claim it works — I measure it.</h2>
+    <p class="lead">The assistant is graded on a fixed set of 108 questions with known-correct behaviour. A deterministic harness scores the objective parts; a stronger model grades answer quality as a judge. Every number below is from one real run — the full results live <a href="https://github.com/samchill93/samuel-ai-api/blob/main/evals/summary.json" target="_blank" rel="noopener">in the repo</a>.</p>
+
+    <div class="sub">Objective scores · deterministic, no judgment call</div>
+    <div class="metric-grid">
+      <div class="metric prov"><div class="mval">0.992</div><div class="mlab">Retrieval recall@5</div><div class="mnote">65 of 66 answerable questions retrieved every source a correct answer needs.</div></div>
+      <div class="metric prov"><div class="mval">92 / 92</div><div class="mlab">Citation validity</div><div class="mnote">Every citation pointed to a source that was actually retrieved. Zero fabricated.</div></div>
+      <div class="metric prov"><div class="mval">108</div><div class="mlab">Golden-set cases</div><div class="mnote">66 should-answer, 42 should-refuse, six categories — each label verified against the corpus.</div></div>
+      <div class="metric prov"><div class="mval">$0.41</div><div class="mlab">Cost per full eval run</div><div class="mnote">Generate 106 answers ($0.21) plus judge every reply ($0.20) — real token counts.</div></div>
+    </div>
+
+    <div class="sub">What the evals caught</div>
+    <div class="eval-catch">
+      <span class="badge live">Found → fixed → deployed</span>
+      <p>Asked whether Samuel can do response streaming and Terraform, the live bot answered <em>yes, he's shipped them</em> — both are in progress, not shipped. The judge flagged it. The grounding rule was tightened, the fix re-measured on the failing cases, then deployed and verified on production — the bot now says that work is in progress. <strong>Measure → find a real bug → fix → re-measure → deploy → verify.</strong> Closing that loop is the point of the module.</p>
+    </div>
+
+    <div class="sub">Judge scores <span class="badge planned">Calibration pending</span></div>
+    <div class="metric-grid">
+      <div class="metric"><div class="mval">0.917</div><div class="mlab">Overall pass</div><div class="mnote">answer cases 59/66 · refuse cases 40/42.</div></div>
+      <div class="metric"><div class="mval">0.944</div><div class="mlab">Grounded</div><div class="mnote">the answer stayed within the sources it cited.</div></div>
+      <div class="metric"><div class="mval">0.981</div><div class="mlab">Behaviour correct</div><div class="mnote">answered when it should, refused when it should.</div></div>
+      <div class="metric"><div class="mval">0.963</div><div class="mlab">Captures the answer</div><div class="mnote">included the facts a correct answer needs.</div></div>
+    </div>
+    <p class="eval-note">A stronger model (Claude Sonnet 5) grades what the runtime model (Haiku 4.5) wrote. These are <strong>uncalibrated</strong>: a judge is only trustworthy once it's shown to agree with a human on the same answers. A 24-item blind hand-labelling slice is built and waiting; until it's scored, these numbers carry this label instead of a headline. Publishing a judge score as fact before that check would be the exact overconfidence this module exists to catch.</p>
+
+    <div class="sub">One number that lies, and why</div>
+    <div class="eval-finding">A naive "did it refuse correctly?" score on the similarity gate reads <span class="big">0.611</span> — but it blames the wrong component. In the code, <strong>every grounded question is routed to the model</strong>; the 0.35 gate only screens out wildly off-topic ones, so the gate was never the thing that refuses. The real refusal happens in the model's own words, reading its sources and saying "these don't cover that." That's true from the code alone, before any judge enters the picture — the (still-uncalibrated) judge, scoring the actual replies, only corroborates it, at <span class="big">0.981</span> behaviour-correct. <strong>The lesson: an easy-to-compute metric can measure the wrong decision boundary — judge the system's real output, not its cheapest proxy.</strong></div>
+
+    <div class="eval-links">
+      <a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-2-evals.md" target="_blank" rel="noopener">Read the full case study →</a>
+      <a href="https://github.com/samchill93/samuel-ai-api/blob/main/data/golden_dataset.json" target="_blank" rel="noopener">The golden dataset →</a>
+      <a href="https://github.com/samchill93/samuel-ai-api/tree/main/evals" target="_blank" rel="noopener">The eval code →</a>
     </div>
   </section>
 
@@ -556,11 +626,17 @@ const FEATURES = {
   citations:        false,  // Citations You Can Touch  — unlocks: Module 1
   honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
   glassBox:         false,  // Glass-Box Panel          — Module 3; public after Module 6
-  evalsDash:        false,  // Evals Dashboard          — unlocks: Module 2
+  evalsDash:        true,   // Evals Dashboard          — unlocks: Module 2
   metricsPage:      false,  // Live Metrics Page        — unlocks: Module 4
   jdMatcher:        false,  // JD Matcher               — Module 5; public after Module 6
   mcpSection:       false,  // MCP section              — unlocks: Module 5
 };
+
+// --- Evals Dashboard (Module 2): static, honest numbers from one real eval run. ---
+(function () {
+  const sec = document.getElementById("evals");
+  if (sec && typeof FEATURES !== "undefined" && !FEATURES.evalsDash) sec.style.display = "none";
+})();
 
 // --- Live Telemetry Strip (1.1): proves this is a live production system. Zero LLM cost. ---
 (function () {
