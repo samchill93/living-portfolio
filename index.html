@@ -437,13 +437,14 @@
       <div class="feature"><span class="badge live">Live</span><h3>CORS-hardened API</h3><p>The API accepts browser requests only from approved origins — locked down, and configurable per environment.</p></div>
       <div class="feature"><span class="badge live">Live</span><h3>Automated tests</h3><p>A pytest suite exercises the API and guards the assistant's honesty — the tests fail if the bot ever overclaims.</p></div>
       <div class="feature"><span class="badge live">Live</span><h3>Auto-generated API docs</h3><p>Interactive OpenAPI documentation at <code>/docs</code>, generated straight from the typed schema.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>Request tracing &amp; metrics</h3><p>Every request gets an ID and a structured JSON log line; each answer carries a timing trace, and <code>/metrics</code> reports live latency, request counts, and running cost.</p></div>
     </div>
 
     <div class="sub">On the roadmap · built in public, shipping in order</div>
     <div class="roadmap">
       <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">quality scores on a 108-case golden dataset — <a href="#evals">see the numbers</a></span><span class="badge live">Shipped</span></div>
-      <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing — <a href="https://samuel-ai-api.onrender.com/metrics" target="_blank" rel="noopener">live /metrics</a></span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">04</span><span class="rname">Agents + MCP</span><span class="rnote">a tool-using agent and a public MCP server</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">05</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">06</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds</span><span class="badge planned">Planned</span></div>
