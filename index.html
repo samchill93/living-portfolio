@@ -69,10 +69,10 @@
   @supports not ((-webkit-background-clip:text) or (background-clip:text)){.hero h1{color:var(--ink);}}
 
   /* Section heads */
-  .build,.services,.inquiry,.evals,.metrics{padding:74px 0;border-bottom:1px solid var(--line);}
-  .build .ey,.services .ey,.inquiry .ey,.evals .ey,.metrics .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-  .build h2,.services h2,.inquiry h2,.evals h2,.metrics h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
-  .build .lead,.services .lead,.inquiry .lead,.evals .lead,.metrics .lead{font-size:16px;color:var(--ink2);max-width:640px;}
+  .build,.services,.inquiry,.evals,.metrics,.agent{padding:74px 0;border-bottom:1px solid var(--line);}
+  .build .ey,.services .ey,.inquiry .ey,.evals .ey,.metrics .ey,.agent .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  .build h2,.services h2,.inquiry h2,.evals h2,.metrics h2,.agent h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
+  .build .lead,.services .lead,.inquiry .lead,.evals .lead,.metrics .lead,.agent .lead{font-size:16px;color:var(--ink2);max-width:640px;}
   .build .sub,.services .sub,.evals .sub{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:42px 0 18px;display:flex;align-items:center;gap:14px;}
   .build .sub::after,.services .sub::after,.evals .sub::after{content:"";flex:1;height:1px;background:var(--line);}
   .evals .lead a{color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
@@ -143,6 +143,34 @@
   .ml-chip{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px;}
   .ml-note{font-size:12.5px;color:var(--mut);margin-top:18px;max-width:660px;line-height:1.6;}
   .metrics code{font-family:var(--mono);font-size:.88em;color:var(--accent-2);background:rgba(56,214,196,.1);padding:1px 6px;border-radius:5px;}
+
+  /* Agent (Module 5) */
+  .agent-demo{margin-top:26px;}
+  .agent-tools{font-family:var(--mono);font-size:11.5px;color:var(--mut);margin-bottom:16px;letter-spacing:.02em;}
+  .agent-tools b{color:var(--accent-2);font-weight:500;}
+  .agent-examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .agent-eg{font-family:var(--body);font-size:12.5px;color:var(--ink2);background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:8px 14px;cursor:pointer;transition:.16s;text-align:left;max-width:340px;line-height:1.4;}
+  .agent-eg:hover{border-color:var(--accent);color:#fff;}
+  .agent-input{display:flex;flex-direction:column;gap:12px;max-width:680px;}
+  #agentTask{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:13px 15px;outline:none;resize:vertical;min-height:90px;transition:border-color .16s,box-shadow .16s;}
+  #agentTask:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  #agentRun{align-self:flex-start;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--accent),#6f7bff);border:none;border-radius:99px;padding:12px 24px;cursor:pointer;transition:.2s;box-shadow:0 12px 30px -12px rgba(91,141,255,.6);}
+  #agentRun:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 16px 38px -12px rgba(91,141,255,.8);}
+  #agentRun:disabled{opacity:.5;cursor:not-allowed;}
+  .agent-status{font-family:var(--mono);font-size:12.5px;color:var(--accent);margin-top:14px;display:flex;align-items:center;gap:9px;}
+  .agent-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.4s infinite;flex-shrink:0;}
+  .agent-out{margin-top:24px;max-width:770px;}
+  .agent-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+  .agent-step{border:1px solid var(--line);border-radius:10px;padding:11px 14px;background:var(--surface);}
+  .agent-step.thought{border-left:2px solid var(--accent-2);}
+  .agent-step.tool{border-left:2px solid var(--accent);}
+  .agent-step .as-head{font-family:var(--body);font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .agent-step .as-tool{color:var(--accent);font-family:var(--mono);letter-spacing:0;}
+  .agent-step .as-body{font-size:13px;color:var(--ink2);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+  .agent-step.tool .as-body{font-family:var(--mono);font-size:11.5px;color:var(--mut);}
+  .agent-answer{background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:14px;padding:20px 22px;font-size:14.5px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+  .agent-meta{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 16px;}
+  .agent-note{font-size:12.5px;color:var(--mut);margin-top:18px;max-width:680px;line-height:1.6;}
 
   /* Services */
   .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px;}
@@ -221,7 +249,7 @@
 
   @media (max-width:820px){
     .hero{grid-template-columns:1fr;gap:36px;padding:56px 0;} .portrait,.portrait-mono{width:184px;height:218px;}
-    .build,.services,.inquiry,.evals,.metrics{padding:56px 0;}
+    .build,.services,.inquiry,.evals,.metrics,.agent{padding:56px 0;}
   }
   @media (max-width:600px){.road .rnote{display:none;} .frow{grid-template-columns:1fr;} .wrap{padding:0 22px;}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;} html.js .reveal{opacity:1;transform:none;}}
@@ -406,7 +434,7 @@
   </div>
   <header class="top">
     <div class="mark">Living AI Portfolio<span class="mark-sub">Grounded AI chat · typed API · auto-deploy · live telemetry · cost-metered</span></div>
-    <nav><a href="#build">The Build</a><a href="#evals">Evals</a><a href="#services">Services</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#inquiry">Contact</a></nav>
+    <nav><a href="#build">The Build</a><a href="#evals">Evals</a><a href="#agent">Agent</a><a href="#services">Services</a><a href="https://github.com/samchill93" target="_blank">GitHub</a><a href="https://www.linkedin.com/in/therealsamhill/" target="_blank">LinkedIn</a><a href="#inquiry">Contact</a></nav>
   </header>
 
   <section class="hero reveal">
@@ -457,10 +485,11 @@
       <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">quality scores on a 108-case golden dataset — <a href="#evals">see the numbers</a></span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing — <a href="https://samuel-ai-api.onrender.com/metrics" target="_blank" rel="noopener">live /metrics</a></span><span class="badge live">Shipped</span></div>
-      <div class="road"><span class="rnum">04</span><span class="rname">Agents + MCP</span><span class="rnote">a tool-using agent and a public MCP server</span><span class="badge planned">Planned</span></div>
-      <div class="road"><span class="rnum">05</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses</span><span class="badge planned">Planned</span></div>
-      <div class="road"><span class="rnum">06</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds</span><span class="badge planned">Planned</span></div>
-      <div class="road"><span class="rnum">07</span><span class="rname">Terraform</span><span class="rnote">the whole stack defined as infrastructure-as-code</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">04</span><span class="rname">Agents</span><span class="rnote">a tool-using agent over the portfolio data — <a href="#agent">try it</a></span><span class="badge live">Shipped</span></div>
+      <div class="road"><span class="rnum">05</span><span class="rname">MCP server</span><span class="rnote">the same portfolio tools exposed to any MCP client</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">06</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">07</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">08</span><span class="rname">Terraform</span><span class="rnote">the whole stack defined as infrastructure-as-code</span><span class="badge planned">Planned</span></div>
     </div>
   </section>
 
@@ -532,6 +561,31 @@
       <div class="ml-detail" id="mlDetail"></div>
     </div>
     <p class="ml-note">Process-local and honest about it: a single free-tier instance with no metrics database, so these are the numbers <em>since this deploy</em> — not lifetime totals, the same discipline as the rest of the site. If the panel says the API is waking, the backend is a free instance that sleeps when idle and is spinning back up.</p>
+  </section>
+
+  <section class="agent reveal" id="agent">
+    <div class="ey">Agent · Module 5</div>
+    <h2>Watch an agent use real tools.</h2>
+    <p class="lead">Give it a task — a job description, work you need built, a question about fit. It decides which tools to call over Samuel's real data, loops until it can answer, and shows every step. This is the real draw of agents: autonomous, multi-step tool use grounded in real information — not a single canned reply.</p>
+    <div class="agent-demo">
+      <div class="agent-tools">Tools it can call: <b>search_portfolio</b> · <b>list_skills</b> · <b>list_projects</b> · <b>list_services</b></div>
+      <div class="agent-examples" id="agentExamples">
+        <button class="agent-eg" type="button">I need a support chatbot that answers from our docs and refuses when unsure. Is Samuel a fit, and what would it cost?</button>
+        <button class="agent-eg" type="button">Role: Senior AI Engineer — RAG, evals, observability, Python. Is he a match? Call out any gaps.</button>
+        <button class="agent-eg" type="button">What has Samuel actually shipped, versus what is he still building?</button>
+      </div>
+      <div class="agent-input">
+        <textarea id="agentTask" maxlength="4000" placeholder="Paste a job description, or describe what you need built…"></textarea>
+        <button id="agentRun" type="button">Run the agent</button>
+      </div>
+      <div class="agent-status" id="agentStatus" hidden></div>
+      <div class="agent-out" id="agentOut" hidden>
+        <div class="agent-steps" id="agentSteps"></div>
+        <div class="agent-answer" id="agentAnswer"></div>
+        <div class="agent-meta" id="agentMeta"></div>
+      </div>
+    </div>
+    <p class="agent-note">The agent calls the live API and a real model, so each run costs a fraction of a cent and takes a few seconds. Tools are read-only — it looks things up, it never takes an action.</p>
   </section>
 
   <section class="services reveal" id="services">
@@ -660,7 +714,7 @@ const FEATURES = {
   glassBox:         false,  // Glass-Box Panel          — Module 3; public after Module 6
   evalsDash:        true,   // Evals Dashboard          — unlocks: Module 2
   metricsPage:      true,   // Live Metrics Page        — unlocks: Module 4
-  jdMatcher:        false,  // JD Matcher               — Module 5; public after Module 6
+  jdMatcher:        true,   // Agent showcase           — Module 5 (public; rate-limit is a Module 6 follow-up)
   mcpSection:       false,  // MCP section              — unlocks: Module 5
 };
 
@@ -717,6 +771,94 @@ const FEATURES = {
   }
   tick();
   setInterval(tick, 15000);
+})();
+
+// --- Agent showcase (Module 5): run the tool-using agent and render every step it takes. ---
+(function () {
+  const sec = document.getElementById("agent");
+  if (!sec) return;
+  if (typeof FEATURES !== "undefined" && !FEATURES.jdMatcher) { sec.style.display = "none"; return; }
+  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:8000" : "https://samuel-ai-api.onrender.com";
+  const task = document.getElementById("agentTask");
+  const runBtn = document.getElementById("agentRun");
+  const status = document.getElementById("agentStatus");
+  const out = document.getElementById("agentOut");
+  const stepsEl = document.getElementById("agentSteps");
+  const answerEl = document.getElementById("agentAnswer");
+  const metaEl = document.getElementById("agentMeta");
+
+  document.querySelectorAll("#agentExamples .agent-eg").forEach((b) => {
+    b.addEventListener("click", () => { task.value = b.textContent; task.focus(); });
+  });
+
+  // Build every node with createElement + textContent, so model/tool output can never inject HTML.
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function summarizeOutput(o) {
+    o = o || {};
+    if (o.error) return "error: " + o.error;
+    if (o.results) return o.results.length + " matches: " + o.results.map((r) => r.source).join(", ");
+    if (o.services) return o.services.length + " service packages";
+    if (o.projects) return o.projects.length + " projects: " + o.projects.map((p) => p.title).join(", ");
+    if (o.shipped || o.currently_building_not_shipped) return "skills (" + Object.keys(o).join(" + ") + ")";
+    try { return JSON.stringify(o).slice(0, 180); } catch (e) { return ""; }
+  }
+
+  function renderStep(s) {
+    const isTool = s.type === "tool_call";
+    const wrap = el("div", "agent-step " + (isTool ? "tool" : "thought"));
+    const head = el("div", "as-head");
+    if (isTool) {
+      head.appendChild(el("span", null, "tool call"));
+      head.appendChild(el("span", "as-tool", s.tool));
+      wrap.appendChild(head);
+      const args = s.input && Object.keys(s.input).length ? "  " + JSON.stringify(s.input) : "";
+      wrap.appendChild(el("div", "as-body", "→ " + summarizeOutput(s.output) + args));
+    } else {
+      head.appendChild(el("span", null, "reasoning"));
+      wrap.appendChild(head);
+      wrap.appendChild(el("div", "as-body", s.text || ""));
+    }
+    return wrap;
+  }
+
+  async function run() {
+    const t = task.value.trim();
+    if (!t) { task.focus(); return; }
+    runBtn.disabled = true;
+    out.hidden = true;
+    stepsEl.textContent = ""; answerEl.textContent = ""; metaEl.textContent = "";
+    status.hidden = false;
+    status.textContent = "the agent is working — deciding which tools to call…";
+    try {
+      const r = await fetch(API_BASE + "/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: t }),
+      });
+      if (!r.ok) throw new Error("status " + r.status);
+      const d = await r.json();
+      (d.steps || []).forEach((s) => stepsEl.appendChild(renderStep(s)));
+      answerEl.textContent = d.answer || "(no answer)";
+      const cost = ((d.usage && d.usage.cost_usd) || 0).toFixed(4);
+      [d.iterations + " model turns", d.tool_calls + " tool calls", "$" + cost,
+       Math.round(d.elapsed_ms) + " ms", "req " + (d.request_id || "")]
+        .forEach((m) => metaEl.appendChild(el("span", null, m)));
+      status.hidden = true;
+      out.hidden = false;
+    } catch (e) {
+      status.textContent = "the agent couldn't run (the free-tier backend may be waking up) — try again in a moment.";
+    } finally {
+      runBtn.disabled = false;
+    }
+  }
+  runBtn.addEventListener("click", run);
 })();
 
 // --- Live Telemetry Strip (1.1): proves this is a live production system. Zero LLM cost. ---
