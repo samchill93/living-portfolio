@@ -836,22 +836,44 @@ const FEATURES = {
     stepsEl.textContent = ""; answerEl.textContent = ""; metaEl.textContent = "";
     status.hidden = false;
     status.textContent = "the agent is working — deciding which tools to call…";
+    out.hidden = false;   // reveal the output area so steps appear live as they stream in
     try {
-      const r = await fetch(API_BASE + "/agent", {
+      const r = await fetch(API_BASE + "/agent/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ task: t }),
       });
-      if (!r.ok) throw new Error("status " + r.status);
-      const d = await r.json();
-      (d.steps || []).forEach((s) => stepsEl.appendChild(renderStep(s)));
-      answerEl.textContent = d.answer || "(no answer)";
-      const cost = ((d.usage && d.usage.cost_usd) || 0).toFixed(4);
-      [d.iterations + " model turns", d.tool_calls + " tool calls", "$" + cost,
-       Math.round(d.elapsed_ms) + " ms", "req " + (d.request_id || "")]
+      if (!r.ok || !r.body) throw new Error("status " + r.status);
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let done = null;
+      while (true) {
+        const { value, done: streamDone } = await reader.read();
+        if (streamDone) break;
+        buffer += decoder.decode(value, { stream: true });
+        let sep;
+        while ((sep = buffer.indexOf("\n\n")) >= 0) {
+          const chunk = buffer.slice(0, sep); buffer = buffer.slice(sep + 2);
+          const line = chunk.startsWith("data:") ? chunk.slice(5).trim() : chunk.trim();
+          if (!line) continue;
+          let evt; try { evt = JSON.parse(line); } catch (e) { continue; }
+          if (evt.type === "step") {
+            stepsEl.appendChild(renderStep(evt.step));    // each thought / tool call, live
+          } else if (evt.type === "done") {
+            done = evt;
+          } else if (evt.type === "error") {
+            throw new Error(evt.detail || "agent error");
+          }
+        }
+      }
+      if (!done) throw new Error("stream ended without a final answer");
+      answerEl.textContent = done.answer || "(no answer)";
+      const cost = ((done.usage && done.usage.cost_usd) || 0).toFixed(4);
+      [done.iterations + " model turns", done.tool_calls + " tool calls", "$" + cost,
+       Math.round(done.elapsed_ms) + " ms", "req " + (done.request_id || "")]
         .forEach((m) => metaEl.appendChild(el("span", null, m)));
       status.hidden = true;
-      out.hidden = false;
     } catch (e) {
       status.textContent = "the agent couldn't run (the free-tier backend may be waking up) — try again in a moment.";
     } finally {
