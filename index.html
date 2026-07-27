@@ -1427,6 +1427,7 @@ function cwAddBubble(role, text, answerId){
     const delta = anchor.getBoundingClientRect().top - msgs.getBoundingClientRect().top;
     msgs.scrollTop += delta - 8;   // leave a small gap above it
   }
+  return bub;   // so a streaming caller can append tokens into this same bubble
 }
 function cwSetTyping(on){
   let t = document.getElementById("cwTyping");
@@ -1451,32 +1452,70 @@ async function cwSend(preset){
   document.getElementById("cwSend").disabled = true;
   cwSetTyping(true);
 
+  const answerId = "cw" + (++cwCiteSeq);
+  let bub = null;        // the bot bubble, created on the first token
+  let streamed = "";     // raw text accumulated for the live typing effect
+
   try {
-    // This is the frontend placing its "order" with your backend.
-    const res = await fetch(CW_API, {
+    // Module 6: stream the answer token-by-token over Server-Sent Events.
+    const res = await fetch(CW_API + "/stream", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: cwMessages }),
     });
-    if(!res.ok) throw new Error("Server responded " + res.status);
-    const data = await res.json();
+    if(!res.ok || !res.body) throw new Error("Server responded " + res.status);
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let done = null;
+
+    while(true){
+      const { value, done: streamDone } = await reader.read();
+      if(streamDone) break;
+      buffer += decoder.decode(value, { stream: true });
+      let sep;
+      while((sep = buffer.indexOf("\n\n")) >= 0){
+        const chunk = buffer.slice(0, sep); buffer = buffer.slice(sep + 2);
+        const line = chunk.startsWith("data:") ? chunk.slice(5).trim() : chunk.trim();
+        if(!line) continue;
+        let evt; try { evt = JSON.parse(line); } catch(e){ continue; }
+        if(evt.type === "token"){
+          if(!bub){ cwSetTyping(false); bub = cwAddBubble("bot", "", null); }
+          streamed += evt.text;
+          const msgs = cwMsgsEl();
+          const nearBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 60;
+          bub.textContent = streamed;                          // live typing (raw text)
+          if(nearBottom) msgs.scrollTop = msgs.scrollHeight;   // follow only if already at the bottom
+        } else if(evt.type === "done"){
+          done = evt;
+        } else if(evt.type === "error"){
+          throw new Error(evt.detail || "stream error");
+        }
+      }
+    }
+
     cwSetTyping(false);
-    const answerId = "cw" + (++cwCiteSeq);
-    cwCiteData[answerId] = data.citations || [];   // markers preview from here
-    cwAddBubble("bot", data.reply, answerId);
-    // Honest cost footer (1.3): real token counts + computed cost from the API response.
-    if (FEATURES.costFooter && data.usage) {
+    if(!done) throw new Error("stream ended without a final answer");
+
+    // Finalize: swap the raw streamed text for the renumbered, plain-text reply + citations.
+    if(!bub) bub = cwAddBubble("bot", "", null);
+    cwCiteData[answerId] = done.citations || [];
+    bub.textContent = "";
+    cwRenderMarks(bub, done.reply, answerId);   // [n] -> touchable superscript links
+
+    // Honest cost footer (1.3): real token counts + computed cost from the final event.
+    if (FEATURES.costFooter && done.usage) {
       const f = document.createElement("div");
       f.className = "cw-cost";
-      const c = data.usage.cost_usd;
+      const c = done.usage.cost_usd;
       const cost = c < 0.0001 ? "<$0.0001" : "~$" + c.toFixed(4);
-      f.textContent = "this answer: " + data.usage.input_tokens.toLocaleString() + " in / " +
-        data.usage.output_tokens.toLocaleString() + " out tokens \u00b7 " + cost;
+      f.textContent = "this answer: " + done.usage.input_tokens.toLocaleString() + " in / " +
+        done.usage.output_tokens.toLocaleString() + " out tokens \u00b7 " + cost + " \u00b7 streamed";
       cwMsgsEl().appendChild(f);
     }
-    // Citations You Can Touch (Module 1): render the sources the answer cited.
-    if (data.citations) cwRenderCitations(data.citations, answerId);
-    cwMessages.push({ role: "assistant", content: data.reply });
+    if (done.citations) cwRenderCitations(done.citations, answerId);
+    cwMessages.push({ role: "assistant", content: done.reply });
   } catch (err) {
     cwSetTyping(false);
     cwAddBubble("bot", "Sorry — I couldn't reach the assistant. Make sure your backend server is running (uvicorn) and try again.");
