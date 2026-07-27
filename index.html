@@ -69,10 +69,10 @@
   @supports not ((-webkit-background-clip:text) or (background-clip:text)){.hero h1{color:var(--ink);}}
 
   /* Section heads */
-  .build,.services,.inquiry,.evals{padding:74px 0;border-bottom:1px solid var(--line);}
-  .build .ey,.services .ey,.inquiry .ey,.evals .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-  .build h2,.services h2,.inquiry h2,.evals h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
-  .build .lead,.services .lead,.inquiry .lead,.evals .lead{font-size:16px;color:var(--ink2);max-width:640px;}
+  .build,.services,.inquiry,.evals,.metrics{padding:74px 0;border-bottom:1px solid var(--line);}
+  .build .ey,.services .ey,.inquiry .ey,.evals .ey,.metrics .ey{font-family:var(--body);font-weight:600;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  .build h2,.services h2,.inquiry h2,.evals h2,.metrics h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.4vw,38px);line-height:1.06;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink);}
+  .build .lead,.services .lead,.inquiry .lead,.evals .lead,.metrics .lead{font-size:16px;color:var(--ink2);max-width:640px;}
   .build .sub,.services .sub,.evals .sub{font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:42px 0 18px;display:flex;align-items:center;gap:14px;}
   .build .sub::after,.services .sub::after,.evals .sub::after{content:"";flex:1;height:1px;background:var(--line);}
   .evals .lead a{color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
@@ -131,6 +131,18 @@
   .eval-links{display:flex;flex-wrap:wrap;gap:22px;margin-top:26px;}
   .eval-links a{font-size:13.5px;font-weight:600;color:var(--accent);border-bottom:1px solid transparent;transition:.16s;}
   .eval-links a:hover{border-color:var(--accent);}
+
+  /* Live metrics (Module 4) — reuses .metric / .metric-grid from the Evals section */
+  .ml-since{font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:18px;display:flex;align-items:center;gap:9px;line-height:1.5;}
+  .ml-since::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live);flex-shrink:0;animation:pulse 2.4s infinite;}
+  .metrics-live.waking .ml-since::before{background:var(--warn);animation:none;}
+  .metrics-live.waking .ml-since{color:var(--warn);}
+  .ml-detail{margin-top:16px;display:flex;flex-direction:column;gap:10px;}
+  .ml-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+  .ml-k{font-family:var(--body);font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);min-width:64px;}
+  .ml-chip{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px;}
+  .ml-note{font-size:12.5px;color:var(--mut);margin-top:18px;max-width:660px;line-height:1.6;}
+  .metrics code{font-family:var(--mono);font-size:.88em;color:var(--accent-2);background:rgba(56,214,196,.1);padding:1px 6px;border-radius:5px;}
 
   /* Services */
   .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px;}
@@ -209,7 +221,7 @@
 
   @media (max-width:820px){
     .hero{grid-template-columns:1fr;gap:36px;padding:56px 0;} .portrait,.portrait-mono{width:184px;height:218px;}
-    .build,.services,.inquiry,.evals{padding:56px 0;}
+    .build,.services,.inquiry,.evals,.metrics{padding:56px 0;}
   }
   @media (max-width:600px){.road .rnote{display:none;} .frow{grid-template-columns:1fr;} .wrap{padding:0 22px;}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;} html.js .reveal{opacity:1;transform:none;}}
@@ -503,6 +515,25 @@
     </div>
   </section>
 
+  <section class="metrics reveal" id="metrics">
+    <div class="ey">Live metrics · Module 4</div>
+    <h2>The system, reporting on itself.</h2>
+    <p class="lead">Read live from the API's <code>/metrics</code> endpoint as this page loads — request counts, latency, and running cost since the current server process started. They reset when a new version deploys, and the line below says exactly when that was.</p>
+    <div class="metrics-live" id="metricsLive">
+      <div class="ml-since" id="mlSince">reading /metrics…</div>
+      <div class="metric-grid">
+        <div class="metric prov"><div class="mval" id="mlReq">—</div><div class="mlab">Requests served</div><div class="mnote">total this process has handled</div></div>
+        <div class="metric"><div class="mval" id="mlP50">—</div><div class="mlab">Latency p50</div><div class="mnote">median round-trip, all routes</div></div>
+        <div class="metric"><div class="mval" id="mlP95">—</div><div class="mlab">Latency p95</div><div class="mnote">slow tail — cold retrieval shows here</div></div>
+        <div class="metric"><div class="mval" id="mlAns">—</div><div class="mlab">Answers</div><div class="mnote">grounded chat replies</div></div>
+        <div class="metric"><div class="mval" id="mlRef">—</div><div class="mlab">Refusals</div><div class="mnote">out-of-corpus, answered at $0</div></div>
+        <div class="metric prov"><div class="mval" id="mlCost">—</div><div class="mlab">Chat cost</div><div class="mnote">running total, real token counts</div></div>
+      </div>
+      <div class="ml-detail" id="mlDetail"></div>
+    </div>
+    <p class="ml-note">Process-local and honest about it: a single free-tier instance with no metrics database, so these are the numbers <em>since this deploy</em> — not lifetime totals, the same discipline as the rest of the site. If the panel says the API is waking, the backend is a free instance that sleeps when idle and is spinning back up.</p>
+  </section>
+
   <section class="services reveal" id="services">
     <div class="ey">Work with me</div>
     <h2>Hire me to build it.</h2>
@@ -628,7 +659,7 @@ const FEATURES = {
   honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
   glassBox:         false,  // Glass-Box Panel          — Module 3; public after Module 6
   evalsDash:        true,   // Evals Dashboard          — unlocks: Module 2
-  metricsPage:      false,  // Live Metrics Page        — unlocks: Module 4
+  metricsPage:      true,   // Live Metrics Page        — unlocks: Module 4
   jdMatcher:        false,  // JD Matcher               — Module 5; public after Module 6
   mcpSection:       false,  // MCP section              — unlocks: Module 5
 };
@@ -637,6 +668,55 @@ const FEATURES = {
 (function () {
   const sec = document.getElementById("evals");
   if (sec && typeof FEATURES !== "undefined" && !FEATURES.evalsDash) sec.style.display = "none";
+})();
+
+// --- Live Metrics Page (Module 4): read /metrics and render the system reporting on itself.
+(function () {
+  const sec = document.getElementById("metrics");
+  if (!sec) return;
+  if (typeof FEATURES !== "undefined" && !FEATURES.metricsPage) { sec.style.display = "none"; return; }
+  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:8000" : "https://samuel-ai-api.onrender.com";
+  const box = document.getElementById("metricsLive");
+  const byId = (id) => document.getElementById(id);
+  const set = (id, v) => { const el = byId(id); if (el) el.textContent = v; };
+  // /metrics reports request paths, which are attacker-controllable (anyone can GET any path),
+  // so escape every server-provided string before it goes near innerHTML.
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function dur(s) {
+    s = Math.max(0, s || 0);
+    if (s < 60) return Math.floor(s) + "s";
+    if (s < 3600) return Math.floor(s / 60) + "m " + Math.floor(s % 60) + "s";
+    if (s < 86400) return Math.floor(s / 3600) + "h " + Math.floor((s % 3600) / 60) + "m";
+    return Math.floor(s / 86400) + "d " + Math.floor((s % 86400) / 3600) + "h";
+  }
+  const ms = (v) => (v == null ? "—" : v + " ms");
+  const chips = (obj) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => '<span class="ml-chip">' + esc(k) + " · " + esc(v) + "</span>").join("");
+  async function tick() {
+    try {
+      const r = await fetch(API_BASE + "/metrics", { cache: "no-store" });
+      if (!r.ok) throw new Error();
+      const m = await r.json();
+      set("mlReq", m.total_requests);
+      set("mlP50", ms(m.latency_ms && m.latency_ms.p50));
+      set("mlP95", ms(m.latency_ms && m.latency_ms.p95));
+      set("mlAns", m.chat.answers);
+      set("mlRef", m.chat.refusals);
+      set("mlCost", "$" + (m.chat.total_cost_usd || 0).toFixed(4));
+      set("mlSince", "live since this deploy — up " + dur(m.uptime_seconds) + " · "
+        + String(m.since).replace("T", " ").slice(0, 19) + " UTC");
+      byId("mlDetail").innerHTML =
+        '<div class="ml-row"><span class="ml-k">by status</span>' + chips(m.status_counts) + "</div>" +
+        '<div class="ml-row"><span class="ml-k">by path</span>' + chips(m.requests_by_path) + "</div>";
+      box.classList.remove("waking");
+    } catch (e) {
+      set("mlSince", "the API is waking up (the free-tier backend sleeps when idle) — retrying…");
+      box.classList.add("waking");
+    }
+  }
+  tick();
+  setInterval(tick, 15000);
 })();
 
 // --- Live Telemetry Strip (1.1): proves this is a live production system. Zero LLM cost. ---
