@@ -399,7 +399,7 @@
 
     <div class="sub">Running now · live in production</div>
     <div class="feature-grid">
-      <div class="feature"><span class="badge live">Live</span><h3>Grounded AI assistant</h3><p>The "Ask my AI" chat answers from a curated knowledge base, refuses what it doesn't know, and never exposes the API key.</p></div>
+      <div class="feature"><span class="badge live">Live</span><h3>RAG assistant with citations</h3><p>The "Ask my AI" chat retrieves from Samuel's real documents, answers only from them, shows the sources it used, refuses what they don't cover, and never exposes the API key.</p></div>
       <div class="feature"><span class="badge live">Live</span><h3>Typed FastAPI backend</h3><p>A Python API with Pydantic models that validate every request and response against a schema.</p></div>
       <div class="feature"><span class="badge live">Live</span><h3>Continuous deployment</h3><p>Push to GitHub and the backend redeploys on Render while the site redeploys on Vercel — two clouds, automatically.</p></div>
       <div class="feature"><span class="badge live">Live</span><h3>CORS-hardened API</h3><p>The API accepts browser requests only from approved origins — locked down, and configurable per environment.</p></div>
@@ -409,7 +409,7 @@
 
     <div class="sub">On the roadmap · built in public, shipping in order</div>
     <div class="roadmap">
-      <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge planned">Planned</span></div>
+      <div class="road"><span class="rnum">01</span><span class="rname">RAG with citations</span><span class="rnote">answers grounded in real documents, with sources</span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">02</span><span class="rname">Evals</span><span class="rnote">published quality scores on a golden dataset</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">03</span><span class="rname">Observability</span><span class="rnote">per-request cost, latency, and tracing</span><span class="badge planned">Planned</span></div>
       <div class="road"><span class="rnum">04</span><span class="rname">Agents + MCP</span><span class="rnote">a tool-using agent and a public MCP server</span><span class="badge planned">Planned</span></div>
@@ -810,8 +810,8 @@ const FEATURES = {
     { label: "Where the key lives", where: "Render environment only",
       plain: "The Anthropic key exists in exactly one place: Render's environment panel. It is not in either repository, not in Vercel's build, and it never reaches the browser. You could copy this entire site to your desktop and it still could not spend the key.",
       code: 'client = Anthropic()   # reads ANTHROPIC_API_KEY from the environment\n# no key is ever included in the JSON sent to the browser' },
-    { label: "Inquiry (not deployed)", where: "Render → Neon Postgres",
-      plain: "Half live, and drawn that way. The endpoint is deployed and validating — a malformed email returns a real 422 from production right now. But DATABASE_URL is not set in Render's environment, so the write cannot happen: the API returns 503 rather than pretending the message was received. One environment variable completes this path.",
+    { label: "Inquiry → Neon", where: "Render → Neon Postgres",
+      plain: "Live now. The contact form validates with Pydantic — a malformed email returns a real 422 from production — then writes to Neon Postgres and returns 201. The endpoint holds no secret the browser can see, and an invisible honeypot drops bot spam without storing it.",
       code: 'with psycopg.connect(os.environ["DATABASE_URL"]) as conn, conn.cursor() as cur:\n    cur.execute(INSERT_INQUIRY, (...))' },
   ];
   const chips = [];

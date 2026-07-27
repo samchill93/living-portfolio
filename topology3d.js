@@ -11,8 +11,8 @@
  *   - endpoints are /health, /version, /inquiry, /chat
  *   - CORS_ORIGINS and RENDER_GIT_COMMIT are read from the environment
  *   - the Anthropic key is read server-side only; it is never sent to the browser
- *   - /version, /inquiry and the Neon edge are NOT deployed yet, and are drawn and
- *     labelled as pending rather than shown as though they were running
+ *   - all six services and their edges are live in production, including the Neon
+ *     write path (/inquiry validates, then stores a message and returns 201)
  *
  * Loaded lazily by index.html; never in the critical path.
  */
@@ -32,7 +32,7 @@ const NODES = [
   { id: "render",    label: "Render",        sub: "FastAPI · Starter tier",      pos: [  9.5,  1.0, -3.0] },
   { id: "browser",   label: "Your browser",  sub: "no framework",                pos: [ -4.0, -5.5,  8.5] },
   { id: "anthropic", label: "Anthropic API", sub: "claude-haiku-4-5",            pos: [ 18.0,  2.5, -9.5] },
-  { id: "neon",      label: "Neon Postgres", sub: "awaiting DATABASE_URL", pos: [ 14.5, -4.5,  1.5], pending: true },
+  { id: "neon",      label: "Neon Postgres", sub: "live · stores inquiries", pos: [ 14.5, -4.5,  1.5] },
 ];
 const N = {}; NODES.forEach((n, i) => { N[n.id] = i; });
 
@@ -43,7 +43,7 @@ const EDGES = [
   { from: "browser", to: "vercel",    note: "GET / — HTML, CSS, JS",   lift:  1.6 },
   { from: "browser", to: "render",    note: "POST /chat",              lift: -2.0 },
   { from: "render",  to: "anthropic", note: "messages.create()",       lift:  1.6 },
-  { from: "render",  to: "neon",      note: "INSERT inquiry",          lift:  1.2, pending: true },
+  { from: "render",  to: "neon",      note: "INSERT inquiry",          lift:  1.2 },
 ];
 const E = {};
 EDGES.forEach((e, i) => { E[e.from + ">" + e.to] = i; });
@@ -53,7 +53,7 @@ const ARIA = [
   "The browser loads the site itself from Vercel. It is plain HTML, CSS and JavaScript with no framework.",
   "The browser calls the API on Render, which calls Anthropic and returns a typed response carrying token counts and cost.",
   "The Anthropic key exists only in Render's environment. It is not in the repository, not on Vercel, and never reaches the browser.",
-  "The inquiry endpoint is deployed and validating, but DATABASE_URL is not set on Render, so the write to Neon Postgres returns 503 instead of storing.",
+  "The inquiry endpoint validates with Pydantic, then writes to Neon Postgres — a valid message is stored and returns 201.",
 ];
 
 function makeLabel(text, color, worldH, weight) {
@@ -226,7 +226,7 @@ export function init(mount, opts) {
   pushLab.userData.prio = 3; scene.add(pushLab);
   const parallelLab = killLabel(makeLabel("both clouds rebuild in parallel", "#7ce0c0", 0.48, 700));
   parallelLab.userData.prio = 3; scene.add(parallelLab);
-  const pendLab = killLabel(makeLabel("deployed · awaiting DATABASE_URL", "#ff9d8c", 0.48, 700));
+  const pendLab = killLabel(makeLabel("validated · stored (201)", "#7ce0c0", 0.48, 700));
   pendLab.userData.prio = 3; scene.add(pendLab);
 
   function resetActors() {
@@ -308,7 +308,7 @@ export function init(mount, opts) {
       absent.forEach((l, i) => { l.material.opacity = 0.55 + Math.sin(t * 1.8 + i * 1.1) * 0.28; });
     },
 
-    // 4 — Inquiry: real code, not yet deployed. Drawn as pending, never as running.
+    // 4 — Inquiry: validated by Pydantic, then stored in Neon (live).
     function (t) {
       const p = (t % 6.4) / 6.4;
       const toApi = edgeAt("browser", "render"), toDb = edgeAt("render", "neon");
@@ -318,7 +318,7 @@ export function init(mount, opts) {
       pendLab.material.opacity = 0.6 + Math.sin(t * 2.2) * 0.3;
       if (p < 0.45) ride(packets[0], toApi, ease(p / 0.45));
       else ride(packets[0], toDb, ease(seg(p, 0.5, 0.95)));
-      packets[0].material.opacity = 0.45;    // dimmed: this path is not live
+      packets[0].material.opacity = 1;
       packets[0].rotation.y = t * 1.6;
     },
   ];
