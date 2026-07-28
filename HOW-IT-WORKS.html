@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How the Living Portfolio Works — Architecture Guide</title>
+<meta name="description" content="A beginner-friendly, diagram-driven guide to the Living Portfolio's full architecture — RAG, agent, MCP, observability, streaming, and deployment — grounded in the real code." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light dark;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+    --display:'Space Grotesk',-apple-system,"Segoe UI",system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;
+    /* light (default) */
+    --bg:#fbfcff; --surface:#ffffff; --elev:#f1f5fc; --sink:#eef2fa;
+    --ink:#141a25; --ink2:#3c485d; --mut:#5f6b83; --faint:#93a0b6;
+    --line:rgba(18,30,60,.11); --line2:rgba(18,30,60,.18);
+    --brand:#3f74f5; --brand2:#12a091; --accent:#3f74f5;
+    --shipped:#0f9d63; --authored:#bd7e1e; --planned:#8791a5; --warn:#d24d3c;
+    --figure:#f6f9ff; --figure-line:rgba(18,30,60,.12);
+    --shadow:0 1px 2px rgba(18,30,60,.05),0 8px 30px -18px rgba(18,30,60,.30);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0b0e15; --surface:#12161f; --elev:#171c27; --sink:#0e131c;
+      --ink:#edf1f8; --ink2:#c1cad9; --mut:#8792a6; --faint:#5a6474;
+      --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+      --brand:#6f9bff; --brand2:#38d6c4; --accent:#6f9bff;
+      --shipped:#3ddc97; --authored:#f5b45a; --planned:#8792a6; --warn:#ff7367;
+      --figure:#eef3fb; --figure-line:rgba(18,30,60,.14);
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px -22px rgba(0,0,0,.75);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#fbfcff; --surface:#ffffff; --elev:#f1f5fc; --sink:#eef2fa;
+    --ink:#141a25; --ink2:#3c485d; --mut:#5f6b83; --faint:#93a0b6;
+    --line:rgba(18,30,60,.11); --line2:rgba(18,30,60,.18);
+    --brand:#3f74f5; --brand2:#12a091; --accent:#3f74f5;
+    --shipped:#0f9d63; --authored:#bd7e1e; --planned:#8791a5; --warn:#d24d3c;
+    --figure:#f6f9ff; --figure-line:rgba(18,30,60,.12);
+    --shadow:0 1px 2px rgba(18,30,60,.05),0 8px 30px -18px rgba(18,30,60,.30);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b0e15; --surface:#12161f; --elev:#171c27; --sink:#0e131c;
+    --ink:#edf1f8; --ink2:#c1cad9; --mut:#8792a6; --faint:#5a6474;
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+    --brand:#6f9bff; --brand2:#38d6c4; --accent:#6f9bff;
+    --shipped:#3ddc97; --authored:#f5b45a; --planned:#8792a6; --warn:#ff7367;
+    --figure:#eef3fb; --figure-line:rgba(18,30,60,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px -22px rgba(0,0,0,.75);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.68;
+    font-size:17px;-webkit-font-smoothing:antialiased;margin:0;}
+  .layout{max-width:1140px;margin:0 auto;padding:0 24px;display:grid;
+    grid-template-columns:236px minmax(0,1fr);gap:44px;align-items:start;}
+  @media (max-width:900px){.layout{grid-template-columns:1fr;gap:0;}}
+
+  aside{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+    padding:30px 0 40px;border-right:1px solid var(--line);}
+  @media (max-width:900px){aside{position:static;height:auto;border-right:none;
+    border-bottom:1px solid var(--line);margin-bottom:8px;}}
+  aside .brand{font-family:var(--display);font-weight:700;color:var(--ink);font-size:15px;letter-spacing:-.01em;margin-bottom:2px;}
+  aside .brandsub{font-family:var(--mono);font-size:10.5px;color:var(--mut);letter-spacing:.03em;margin-bottom:20px;}
+  nav a{display:block;font-size:13.5px;color:var(--mut);text-decoration:none;padding:5px 10px;
+    border-left:2px solid transparent;border-radius:0 6px 6px 0;transition:.15s;line-height:1.35;}
+  nav a:hover{color:var(--ink);background:var(--elev);}
+  nav a.grp{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--faint);margin-top:16px;padding-left:10px;border:0;}
+  nav a b{font-family:var(--mono);color:var(--faint);font-weight:500;font-size:11px;margin-right:7px;}
+
+  main{padding:38px 0 96px;min-width:0;max-width:760px;}
+  .theme-btn{position:fixed;top:14px;right:16px;z-index:20;font:600 12px/1 var(--sans);
+    background:var(--surface);color:var(--ink2);border:1px solid var(--line2);border-radius:99px;
+    padding:8px 14px;cursor:pointer;box-shadow:var(--shadow);}
+  .theme-btn:hover{color:var(--ink);border-color:var(--brand);}
+
+  .hero{padding:8px 0 34px;border-bottom:1px solid var(--line);margin-bottom:8px;}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);}
+  h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);line-height:1.05;letter-spacing:-.025em;color:var(--ink);
+    margin:14px 0 12px;text-wrap:balance;font-weight:700;}
+  .hero p{font-size:18px;color:var(--ink2);max-width:60ch;}
+  .hero .note{margin-top:18px;font-size:14px;color:var(--mut);background:var(--elev);
+    border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:0 10px 10px 0;padding:12px 16px;}
+
+  section{padding:40px 0;border-bottom:1px solid var(--line);}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--brand);
+    display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  .eyebrow .num{color:var(--faint);}
+  h2{font-family:var(--display);font-size:27px;line-height:1.14;letter-spacing:-.02em;color:var(--ink);margin:0 0 14px;font-weight:700;text-wrap:balance;}
+  h3{font-size:18.5px;color:var(--ink);margin:30px 0 8px;letter-spacing:-.01em;font-weight:650;}
+  h4{font-size:14px;color:var(--ink);margin:20px 0 6px;font-weight:650;}
+  p{margin:0 0 15px;}
+  main a{color:var(--brand);text-decoration:none;border-bottom:1px solid transparent;}
+  main a:hover{border-color:var(--brand);}
+  strong{color:var(--ink);font-weight:650;}
+  code{font-family:var(--mono);font-size:.84em;background:var(--sink);color:var(--ink);
+    padding:1px 6px;border-radius:5px;border:1px solid var(--line);}
+  ul,ol{margin:0 0 15px;padding-left:22px;}
+  li{margin:5px 0;}
+  .lead{font-size:18px;color:var(--ink2);}
+
+  figure{margin:22px 0;background:var(--figure);border:1px solid var(--figure-line);border-radius:14px;
+    padding:22px 18px 10px;box-shadow:var(--shadow);overflow-x:auto;}
+  figure .mermaid{display:flex;justify-content:center;min-width:min-content;}
+  figcaption{font-family:var(--mono);font-size:11.5px;color:#5a6478;text-align:center;padding:12px 8px 6px;letter-spacing:.02em;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:18px 0;box-shadow:var(--shadow);}
+  .whw{display:grid;gap:12px;margin:14px 0 4px;}
+  .whw .row{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:baseline;}
+  @media (max-width:520px){.whw .row{grid-template-columns:1fr;gap:2px;}}
+  .whw .k{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--brand);padding-top:2px;}
+  .whw .v{color:var(--ink2);}
+  .say{margin:16px 0 2px;padding:13px 16px;background:var(--elev);border-radius:10px;border:1px solid var(--line);
+    font-size:14.5px;color:var(--ink2);}
+  .say b{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--brand2);display:block;margin-bottom:4px;font-weight:600;}
+  .say i{font-style:normal;color:var(--ink);}
+
+  .twrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:var(--surface);}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);background:var(--elev);}
+  tr:last-child td{border-bottom:0;}
+  td code{white-space:nowrap;}
+  .num-col{font-variant-numeric:tabular-nums;}
+
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;padding:2px 8px;border-radius:6px;vertical-align:middle;}
+  .b-shipped{color:var(--shipped);background:color-mix(in srgb,var(--shipped) 14%,transparent);border:1px solid color-mix(in srgb,var(--shipped) 34%,transparent);}
+  .b-authored{color:var(--authored);background:color-mix(in srgb,var(--authored) 15%,transparent);border:1px solid color-mix(in srgb,var(--authored) 36%,transparent);}
+  .b-planned{color:var(--planned);background:color-mix(in srgb,var(--planned) 13%,transparent);border:1px solid var(--line2);}
+
+  .pill{font-family:var(--mono);font-size:11px;color:var(--ink2);background:var(--sink);border:1px solid var(--line);
+    border-radius:6px;padding:2px 7px;white-space:nowrap;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+  @media (max-width:620px){.grid2{grid-template-columns:1fr;}}
+  .mini{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);}
+  .mini h4{margin-top:0;}
+  .mini p{font-size:14px;margin-bottom:0;color:var(--mut);}
+  .callout{background:color-mix(in srgb,var(--brand) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--brand) 26%,transparent);
+    border-radius:12px;padding:16px 18px;margin:18px 0;font-size:15px;color:var(--ink2);}
+  .callout b{color:var(--ink);}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--mut);margin:12px 0 2px;}
+  .footer{padding:36px 0 10px;color:var(--mut);font-size:13.5px;}
+  .footer b{color:var(--ink);}
+  dl.gloss{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:10px 0;font-size:14.5px;}
+  @media (max-width:560px){dl.gloss{grid-template-columns:1fr;gap:2px 0;}dl.gloss dd{margin-bottom:12px;}}
+  dl.gloss dt{font-weight:600;color:var(--ink);font-family:var(--mono);font-size:13px;}
+  dl.gloss dd{margin:0;color:var(--ink2);}
+</style>
+</head>
+<body>
+
+<button class="theme-btn" onclick="(function(){var r=document.documentElement;var d=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');r.setAttribute('data-theme',d==='dark'?'light':'dark');})()">◐ Theme</button>
+
+<div class="layout">
+<aside>
+  <div class="brand">Living Portfolio</div>
+  <div class="brandsub">architecture guide · v2</div>
+  <nav>
+    <a href="#top">Overview</a>
+    <a href="#picture"><b>00</b>The big picture</a>
+    <a href="#primer">Concepts in 60 seconds</a>
+    <a href="#journey">One question's journey</a>
+    <a class="grp">The AI</a>
+    <a href="#rag"><b>01</b>RAG assistant</a>
+    <a href="#evals"><b>02</b>Evals</a>
+    <a href="#obs"><b>03</b>Observability</a>
+    <a href="#agent"><b>05</b>The agent</a>
+    <a href="#mcp"><b>05</b>MCP server</a>
+    <a href="#stream"><b>06</b>Streaming</a>
+    <a class="grp">The plumbing</a>
+    <a href="#backend">Backend API</a>
+    <a href="#hardening">Rate limiting</a>
+    <a href="#frontend">Frontend</a>
+    <a href="#deploy">Deployment</a>
+    <a href="#docker"><b>07/08</b>Docker &amp; Terraform</a>
+    <a class="grp">The spine</a>
+    <a href="#tests">Tests</a>
+    <a href="#honesty">The honesty system</a>
+    <a href="#roadmap">Module roadmap</a>
+    <a href="#glossary">Glossary</a>
+  </nav>
+</aside>
+
+<main id="top">
+  <div class="hero">
+    <div class="kicker">How it works — end to end</div>
+    <h1>The Living Portfolio, explained from the ground up</h1>
+    <p class="lead">A plain-English tour of every part of the system — the website, the AI that answers questions about Samuel, and the infrastructure underneath. Written for someone newer to software, but precise enough to defend to an engineer.</p>
+    <div class="note">Every fact here was read straight from the source code, with exact function names, constants, and values. Where the roadmap says something isn't verified yet (Docker, Terraform), this guide says the same — nothing is claimed that the code doesn't back up.</div>
+  </div>
+
+  <section id="picture">
+    <div class="eyebrow"><span class="num">00</span> The big picture</div>
+    <h2>Two apps, two clouds, one push</h2>
+    <p>The portfolio is <strong>two separate applications</strong> that live on <strong>two separate clouds</strong>, tied together by GitHub:</p>
+    <ul>
+      <li><strong>The site</strong> (<code>living-portfolio</code>) — a single hand-written <code>index.html</code> of plain HTML/CSS/JavaScript, served by <strong>Vercel</strong>.</li>
+      <li><strong>The API</strong> (<code>samuel-ai-api</code>) — a Python <strong>FastAPI</strong> backend hosted on <strong>Render</strong>, which calls the <strong>Anthropic</strong> (Claude) API for answers, the <strong>OpenAI</strong> API for embeddings, and a <strong>Neon</strong> Postgres database for its knowledge store.</li>
+    </ul>
+    <figure>
+      <pre class="mermaid">
+%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+flowchart LR
+  Dev([You: git push]) --> GH[GitHub<br/>source of truth]
+  GH -- rebuilds --> V[Vercel<br/>the website]
+  GH -- rebuilds --> R[Render<br/>the API]
+  User([Visitor's browser]) -- loads page --> V
+  User -- asks a question --> R
+  R -- embeds text --> O[OpenAI<br/>embeddings]
+  R -- writes/reads vectors --> N[(Neon Postgres<br/>+ pgvector)]
+  R -- generates answer --> A[Anthropic<br/>Claude]
+      </pre>
+      <figcaption>One push to GitHub rebuilds both clouds in parallel. The browser talks to Vercel for the page and to Render for the AI.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">Why split</div><div class="v">Separating a static site from an API is standard, and it <em>creates the security story</em>: because the browser (on Vercel's domain) calls an API on a <em>different</em> domain (Render), the browser enforces <strong>CORS</strong>; and because the API holds secret keys the browser must never see, those keys live <em>only</em> on Render. The two-origin split is deliberate.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"A static frontend on Vercel and a FastAPI backend on Render, one GitHub push deploying both. The two-origin split forces the CORS boundary and keeps every secret server-side."</i></div>
+    </div>
+  </section>
+
+  <section id="primer">
+    <div class="eyebrow">Concepts in 60 seconds</div>
+    <h2>The words you'll need</h2>
+    <p>The rest of the guide uses these terms constantly. Here's each one in a sentence — the full glossary is <a href="#glossary">at the bottom</a>.</p>
+    <dl class="gloss">
+      <dt>API</dt><dd>A server that answers requests over the web. The browser sends JSON, the API sends JSON back.</dd>
+      <dt>LLM</dt><dd>A large language model (here, Anthropic's Claude) — the thing that writes the answers.</dd>
+      <dt>RAG</dt><dd>Retrieval-Augmented Generation: look up the relevant real documents <em>first</em>, then make the model answer using only those.</dd>
+      <dt>Embedding</dt><dd>Turning a piece of text into a list of numbers (a vector) that captures its <em>meaning</em>, so similar meanings land close together.</dd>
+      <dt>Vector search</dt><dd>Finding the stored text whose meaning-vector is closest to the question's — search by meaning, not keywords.</dd>
+      <dt>Grounding</dt><dd>Forcing the model to answer only from the retrieved sources, and to refuse when they don't cover the question.</dd>
+      <dt>Agent</dt><dd>An AI that works in a loop — it decides which <em>tools</em> to call, reads the results, and repeats until it can answer.</dd>
+      <dt>MCP</dt><dd>Model Context Protocol: a shared standard for offering those tools to any AI app (Claude Desktop, an IDE, another agent).</dd>
+      <dt>Streaming (SSE)</dt><dd>Sending a reply in pieces as it's written, so words appear live instead of all at once.</dd>
+      <dt>Observability</dt><dd>Being able to tell what the system is doing from the outside — request ids, timings, and live health numbers.</dd>
+    </dl>
+  </section>
+
+  <section id="journey">
+    <div class="eyebrow">The whole thing at once</div>
+    <h2>The journey of one question</h2>
+    <p>When you type a question into the chat and hit send, here is every real step it takes — from the browser to the answer and back. Each later section zooms into one part of this.</p>
+    <figure>
+      <pre class="mermaid">
+%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+flowchart TD
+  B([Browser POSTs the conversation]) --> C{CORS<br/>allowed origin?}
+  C -- no --> X[Browser blocks it]
+  C -- yes --> M[Middleware: give it an ID,<br/>start a timer]
+  M --> RL{Rate limit:<br/>under 20 / 60s?}
+  RL -- no --> E429[429 Too Many Requests]
+  RL -- yes --> Q[Build query from<br/>last 2 user turns]
+  Q --> EMB[Embed the question<br/>OpenAI 1536-dim]
+  EMB --> VS[Top-5 vector search<br/>Neon + pgvector]
+  VS --> G{Best match<br/>≥ 0.35?}
+  G -- no --> REF[Refuse — no model call, $0]
+  G -- yes --> P[Ground Claude on the<br/>numbered sources]
+  P --> CL[Claude Haiku 4.5<br/>writes the answer]
+  CL --> FIN[Renumber citations,<br/>strip markdown, price it]
+  FIN --> RESP([Reply + citations + cost + trace])
+  REF --> RESP
+  RESP --> LOG[Middleware: log JSON line,<br/>record metrics, set X-Request-ID]
+      </pre>
+      <figcaption>One request end to end. The refusal path (left) spends nothing; the grounded path (right) calls the model.</figcaption>
+    </figure>
+    <p>The two-gate shape is the heart of it: retrieval decides <em>whether</em> to answer at all, and only a strong enough match reaches the model. Everything else — the middleware, the rate limit, the trace — wraps around that core.</p>
+  </section>
+
+  <section id="rag">
+    <div class="eyebrow"><span class="num">01</span> The RAG assistant</div>
+    <h2>The centerpiece: answers grounded in real documents</h2>
+    <p class="lead">The chat assistant doesn't answer from the model's general memory. It answers <strong>only from Samuel's own documents</strong>, cites its sources, and refuses when the documents don't cover the question. That is <strong>RAG</strong>, and it's the most important part to understand.</p>
+
+    <div class="callout"><b>Why RAG beats one big prompt.</b> The earlier version stuffed every fact into one hand-written prompt. RAG wins three ways: <b>(1)</b> it doesn't hallucinate — ask "Samuel's favorite pizza?" and it refuses, because no document says; <b>(2)</b> it can <em>cite</em>, because it pulled specific chunks; <b>(3)</b> it's <em>editable</em> — the knowledge is markdown files in a database, so editing a file and re-ingesting changes the live bot with no redeploy.</div>
+
+    <figure>
+      <pre class="mermaid">
+%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+flowchart LR
+  subgraph Ingest [ Ingestion — run once, offline ]
+    direction TB
+    MD[corpus/*.md<br/>6 markdown files] --> CH[Chunk: ~1000 chars,<br/>150 overlap]
+    CH --> EM1[Embed each chunk<br/>OpenAI 1536-dim]
+    EM1 --> DB[(Neon: documents<br/>+ chunks + HNSW index)]
+  end
+  subgraph Ask [ Every question ]
+    direction TB
+    QQ[Question] --> EM2[Embed question]
+    EM2 --> SR[Cosine top-5<br/>vs the HNSW index]
+    SR --> DB
+  end
+  DB --> GR{≥ 0.35?}
+  GR -- no --> RF[Refuse]
+  GR -- yes --> AN[Ground Claude → cited answer]
+      </pre>
+      <figcaption>Documents are embedded once and stored; each question is embedded and matched against them.</figcaption>
+    </figure>
+
+    <h3>The corpus — knowledge as documents</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">A <code>/corpus</code> folder of markdown: <code>profile.md</code>, <code>skills.md</code>, and four project files (<code>cadence</code>, <code>consulting-platform</code>, <code>meridian</code>, <code>living-portfolio</code>). These six files are the <em>only</em> things the bot can say. <code>README.md</code> files are skipped.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">Versioned, transparent, re-ingestable — and a <strong>claims surface</strong>. Every sentence is something the bot will state to a recruiter as fact, so it gets the honesty rule: shipped vs. in-progress stays explicit.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"The corpus is markdown in the repo — one editable, versioned source of truth. I treat it as a claims surface: if the bot can say it, it has to be true and defensible."</i></div>
+    </div>
+
+    <h3>Chunking — cutting documents into pieces</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">Each document is split into overlapping windows of <strong>1000 characters</strong> (<code>CHUNK_SIZE</code>) with <strong>150 characters of overlap</strong> (<code>CHUNK_OVERLAP</code>). The cut is nudged to the nearest newline or space so words aren't split mid-way.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">You retrieve <em>chunks</em>, not whole files, so the model gets just the relevant slice. The overlap keeps a sentence that straddles a cut from being lost to both sides. It's a deliberate simple baseline for a small corpus.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Fixed-size character chunks with overlap so a boundary sentence isn't orphaned — a simple baseline; structure-aware chunking is the next step if the corpus grows."</i></div>
+    </div>
+
+    <h3>Embeddings — turning text into meaning</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">Each chunk (and every question) becomes an <strong>embedding</strong>: a list of <strong>1536 numbers</strong> from OpenAI's <code>text-embedding-3-small</code>, representing its meaning as a point in 1536-dimensional space where similar meanings land close together.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">This is what lets the system search by <em>meaning</em>, not keywords. "What did he do before engineering?" lands near a chunk about his PM career even with few shared words. Anthropic has no embeddings API — that's the real reason OpenAI is a second provider.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Embeddings map text to a 1536-dim vector where semantic similarity is geometric distance. Anthropic has no embeddings API, so embeddings run on OpenAI — a real architecture fact, not an accident."</i></div>
+    </div>
+
+    <h3>Vector search — finding the closest chunks</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">The chunks live in <strong>Neon Postgres</strong> with the <strong>pgvector</strong> extension. For each question, it finds the <strong>top 5</strong> (<code>RETRIEVAL_K = 5</code>) most similar chunks by <strong>cosine similarity</strong> — the <code>&lt;=&gt;</code> operator gives cosine <em>distance</em>, and the SQL turns it into similarity with <code>1 - (embedding &lt;=&gt; query)</code>.</div></div>
+        <div class="row"><div class="k">How</div><div class="v">An <strong>HNSW index</strong> (<code>vector_cosine_ops</code>) makes "find the nearest vectors" fast without scanning every row. The query orders by the raw <code>&lt;=&gt;</code> operator specifically so that index stays usable.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">Postgres + pgvector over a dedicated vector DB because the app already needs a real database (for the contact form), Neon has a free serverless tier, and "vectors next to relational data in one Postgres" is a clean story.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Cosine-similarity top-k over pgvector in Neon, with an HNSW index. One Postgres holds both the vectors and the app's relational data — no separate vector database."</i></div>
+    </div>
+
+    <h3>Grounding &amp; the refusal threshold — the anti-hallucination gate</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">If the best chunk's similarity is <strong>below 0.35</strong> (<code>MIN_SIMILARITY</code>), the bot refuses — "I don't have that in Samuel's documents" — <strong>without calling the model</strong>, so a refusal costs <strong>$0</strong>. Otherwise the retrieved chunks are handed to Claude with strict rules: answer <em>only</em> from these numbered sources, cite each claim with <code>[n]</code>, never present in-progress work as finished.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">The threshold is the anti-hallucination gate. Too high (say 0.6) → real questions get refused. Too low (say 0.1) → junk retrievals slip through and the model guesses. <strong>0.35</strong> sits in the measured gap between in-corpus (~0.46–0.53) and out-of-corpus (~0.33) questions.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Below a cosine-similarity threshold I refuse instead of answering. Too high refuses real questions; too low invites hallucination. I set 0.35 in the measured gap — and calibrating it is exactly what the evals are for."</i></div>
+    </div>
+
+    <h3>Citations you can touch</h3>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">Each answer's <code>[n]</code> markers are clickable; hovering shows the source's title and a snippet. Under the hood <code>finalize_citations</code> <strong>renumbers</strong> the model's markers to a clean 1..N that matches the <strong>deduplicated</strong> source list (several markers to one file collapse to one), attaches a 200-char snippet, and drops any marker pointing at a chunk that wasn't retrieved.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">The model numbers by <em>retrieval order</em> (it saw 5 chunks), but the displayed chips are deduped — show the raw numbers and <code>[4]</code> points at a chip that doesn't exist. Renumbering makes the visible numbers a real reference list.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Markers index the retrieved chunks, but I dedupe sources, so I renumber to a 1..N that matches the source list — otherwise a marker points at a citation that isn't shown."</i></div>
+    </div>
+
+    <div class="grid2">
+      <div class="mini"><h4>Conversation-aware retrieval</h4><p>A follow-up like "what's it built with?" has no topic alone, so the query is built from the <strong>last two user turns</strong> (<code>conversation_query</code>, capped at 500 chars) — restoring the subject from the previous message.</p></div>
+      <div class="mini"><h4>Cost metering</h4><p>Every answer reports real token counts × Haiku 4.5's price (<strong>$1</strong>/M input, <strong>$5</strong>/M output) — about <strong>$0.002</strong> an answer, <strong>$0</strong> for a refusal. Measured, never estimated.</p></div>
+      <div class="mini"><h4>Plain-text backstop</h4><p><code>to_plain_text</code> strips any <code>##</code> or <code>**</code> the model emits, because the widget renders plain text. The prompt <em>asks</em> for it; this <em>guarantees</em> it.</p></div>
+      <div class="mini"><h4>Persona vs. facts</h4><p><code>about_me.py</code> is now just voice and tone — no facts. All facts come from the corpus, so there is exactly one place to keep honest.</p></div>
+    </div>
+  </section>
+
+  <section id="evals">
+    <div class="eyebrow"><span class="num">02</span> Evals <span class="badge b-shipped">Shipped</span></div>
+    <h2>Measuring quality instead of guessing</h2>
+    <p>"It seems to work when I try it" is not evidence. The evals system scores the assistant on a fixed set of questions with known-correct behaviour, so quality is a number, not a vibe.</p>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">What</div><div class="v">A <strong>108-case golden dataset</strong> (answer vs. refuse, across six categories). A <strong>deterministic harness</strong> scores the objective parts — retrieval recall and citation validity. An <strong>LLM-as-judge</strong> (a stronger Claude model) grades the actual replies for groundedness and behaviour.</div></div>
+        <div class="row"><div class="k">Why</div><div class="v">The judge caught a real bug: asked whether Samuel had "shipped streaming and Terraform," the live bot said yes — both were in progress. The grounding rule was tightened, redeployed, and re-verified. That loop — measure → find a bug → fix → re-measure → deploy → verify — is the point.</div></div>
+        <div class="row"><div class="k">Open</div><div class="v"><strong>Judge calibration</strong> is the one honest gap: a blind slice of the judge's verdicts still needs a human's pass/fail labels to prove the judge agrees with a person. Until then, judge numbers are shown as "calibration pending," not as fact.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"A golden dataset, deterministic metrics, and an LLM judge — and I hold the judge's numbers as uncalibrated until they're checked against my own hand labels, because a judge you haven't validated is just another opinion."</i></div>
+    </div>
+  </section>
+
+  <section id="obs">
+    <div class="eyebrow"><span class="num">03</span> Observability <span class="badge b-shipped">Shipped</span></div>
+    <h2>The system reporting on itself</h2>
+    <p>Every request gets a short <strong>id</strong>, is <strong>timed</strong>, and is logged as one line of <strong>JSON</strong> to stdout (which Render captures). An in-memory <strong>metrics</strong> registry tallies request counts, status classes, per-path counts, latency percentiles, and chat economics — always labelled with the process start time so the numbers are an honest "since this deploy" window, never a fake lifetime total.</p>
+
+    <div class="twrap"><table>
+      <tr><th>Piece</th><th>What it records</th></tr>
+      <tr><td><code>X-Request-ID</code></td><td>A 12-char id on every response, matching the log line and the trace — so a report ("it broke at 2pm") ties to exact logs.</td></tr>
+      <tr><td>JSON logs</td><td>One object per line (<code>ts, level, path, status, latency_ms</code>, …) — greppable by machine, not human prose.</td></tr>
+      <tr><td><code>/metrics</code></td><td><span class="pill">since</span> <span class="pill">uptime</span> <span class="pill">total_requests</span> <span class="pill">status_counts</span> <span class="pill">requests_by_path</span> <span class="pill">p50 / p95</span> <span class="pill">chat: answers / refusals / tokens / cost</span></td></tr>
+      <tr><td>The <code>Trace</code></td><td>Per answer: <code>grounded</code>, <code>sources</code>, <code>top_similarity</code>, and real timings — <code>retrieval_ms</code> split into <code>embed_ms</code> + <code>db_ms</code>, plus <code>model_ms</code>. Operational data only — no message text, no secrets.</td></tr>
+    </table></div>
+
+    <div class="callout"><b>The instrument found its own next target.</b> Splitting <code>retrieval_ms</code> into <code>embed_ms</code> + <code>db_ms</code> revealed that, warm, the <em>database connection</em> (~1.4s) dominated the query — not the model. The fix: a <strong>connection pool</strong> that reuses a warm connection and <em>validates it on checkout</em> (so a connection Neon dropped while idle is replaced, not handed out dead). Measured live afterward: warm db time fell from ~1.7s to ~0.3s across a conversation. Reliability preserved, speed gained. That is the whole loop: <b>measure → localize → fix → re-measure.</b></div>
+    <div class="say"><b>In an interview</b><i>"I instrumented every request, split retrieval timing into embed vs. db, found the per-request Neon connection was the cost, and pooled it with checkout validation — warm retrieval dropped ~5×, and I re-measured live to prove it."</i></div>
+  </section>
+
+  <section id="agent">
+    <div class="eyebrow"><span class="num">05</span> The agent <span class="badge b-shipped">Shipped</span></div>
+    <h2>An AI that uses tools in a loop</h2>
+    <p class="lead">The chat answers one question in one shot. The <strong>agent</strong> is different: it's given a task plus a menu of <strong>tools</strong>, and it decides which to call, reads the results, and iterates until it can answer. That autonomous, multi-step tool use is the actual draw of agents.</p>
+
+    <figure>
+      <pre class="mermaid">
+%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+flowchart TD
+  T([Task: 'Is he a fit for this role?']) --> LLM[Claude + the 4 tool schemas]
+  LLM --> D{Asked for<br/>a tool?}
+  D -- yes --> RUN[Run it: search_portfolio /<br/>list_skills / list_projects / list_services]
+  RUN --> FEED[Feed the result back]
+  FEED --> LLM
+  D -- no --> ANS([Final answer + every step it took])
+  LLM -. hard cap: 6 loops .-> ANS
+      </pre>
+      <figcaption>The hand-written loop: call the model, run whatever tools it asks for, feed results back, repeat — up to 6 times.</figcaption>
+    </figure>
+
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">Tools</div><div class="v">Four, all <strong>read-only</strong>: <code>search_portfolio</code> (semantic search of the corpus), <code>list_skills</code> (shipped vs. building), <code>list_projects</code>, <code>list_services</code> (the real starting prices). The agent can look things up — it can never write, send, or buy anything.</div></div>
+        <div class="row"><div class="k">How</div><div class="v">One generator, <code>run_agent_stream</code>, keeps calling Claude (model <code>claude-haiku-4-5-20251001</code>, up to <code>MAX_ITERATIONS = 6</code>). It records every <em>thought</em> and <em>tool call</em> and yields them as they happen; the non-streaming <code>run_agent</code> is a thin consumer of the same loop, so there's one behaviour to maintain.</div></div>
+        <div class="row"><div class="k">Honesty</div><div class="v">The system prompt forbids answering from memory and forbids presenting "currently building" work as shipped. For a job-fit question it must break the role into requirements and mark each <em>covered / partial / gap</em> with evidence — including what he <em>can't</em> yet do.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"A hand-written tool-use loop over four read-only tools, capped at six iterations, that returns every step it took — so the autonomy is visible, not a black box. Both the streaming and non-streaming surfaces run one loop."</i></div>
+    </div>
+  </section>
+
+  <section id="mcp">
+    <div class="eyebrow"><span class="num">05</span> MCP server <span class="badge b-shipped">Shipped</span></div>
+    <h2>Publishing the tools to any AI client</h2>
+    <p>The agent's four tools were useful but locked inside one endpoint. <strong>MCP (Model Context Protocol)</strong> is a shared standard — a universal plug — for offering tools to any AI app. <code>mcp_server.py</code> wraps the <em>same four functions</em> and publishes them over MCP with <strong>FastMCP</strong>, so Claude Desktop, an IDE, or another agent can use them.</p>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">One source</div><div class="v">The MCP tools are thin wrappers over the exact <code>agent.py</code> implementations — two surfaces, one set of tools, so a change to a tool changes it everywhere.</div></div>
+        <div class="row"><div class="k">Transport</div><div class="v">Ships over <strong>stdio</strong> — an MCP client launches <code>python mcp_server.py</code> as a local subprocess and talks over its input/output pipes. A hosted HTTP version can also mount at <code>/mcp</code> on the API, but it's <strong>off by default</strong> behind the <code>ENABLE_MCP_HTTP</code> flag so it can't affect the live API unless deliberately turned on.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"The same tools the agent uses, published over MCP via FastMCP — one implementation behind two surfaces — verified end-to-end against a real MCP client, not just imported."</i></div>
+    </div>
+  </section>
+
+  <section id="stream">
+    <div class="eyebrow"><span class="num">06</span> Streaming <span class="badge b-shipped">Shipped</span></div>
+    <h2>Watching the answer type itself</h2>
+    <p>Instead of waiting for the whole answer, <code>/chat/stream</code> sends it in pieces using <strong>Server-Sent Events</strong> — one long HTTP response where each message is <code>data: {…}</code>. The model's text arrives as <code>token</code> events as it's written, then a final <code>done</code> event carries the finished reply, citations, cost, and trace. <code>/agent/stream</code> does the same with <code>step</code> events (each thought or tool call) then a <code>done</code>.</p>
+    <div class="callout"><b>Two buffering traps, both checked — not assumed.</b> The observability middleware and Render's proxy could each have quietly buffered the whole stream and defeated it. Adding <code>Cache-Control: no-cache</code> and <code>X-Accel-Buffering: no</code> and then <em>measuring live</em> confirmed tokens arrive incrementally (spread over the model's writing time), not in one blob.</div>
+    <div class="say"><b>In an interview</b><i>"Token-by-token over SSE, with the finalized citations and cost sent in a closing event. I proved it isn't buffered by the middleware or the proxy by measuring the inter-token timing live."</i></div>
+  </section>
+
+  <section id="backend">
+    <div class="eyebrow">The plumbing</div>
+    <h2>The backend — a typed API</h2>
+    <p>A Python <strong>FastAPI</strong> app. Every request and response is a typed <strong>Pydantic</strong> model, so a malformed request is auto-rejected with a <strong>422</strong> and the exact field errors <em>before any handler runs</em> — and the interactive docs at <code>/docs</code> generate from those same types. It exposes eight routes (plus the optional <code>/mcp</code>):</p>
+    <div class="twrap"><table>
+      <tr><th>Route</th><th>Does</th></tr>
+      <tr><td><code>GET /health</code></td><td>Liveness check — returns <code>{"status":"ok"}</code>.</td></tr>
+      <tr><td><code>GET /version</code></td><td>The deployed commit SHA (from Render's <code>RENDER_GIT_COMMIT</code>) + when the process started — so "is my change live?" is a fact, not a guess.</td></tr>
+      <tr><td><code>GET /metrics</code></td><td>The live metrics snapshot (counts, latency, running cost) since this deploy.</td></tr>
+      <tr><td><code>POST /inquiry</code></td><td>The contact form — validated, honeypot-guarded, stored in Neon. <em>(details below)</em></td></tr>
+      <tr><td><code>POST /chat</code></td><td>The RAG assistant. <span class="pill">rate-limited</span></td></tr>
+      <tr><td><code>POST /chat/stream</code></td><td>The RAG assistant, streamed token-by-token. <span class="pill">rate-limited</span></td></tr>
+      <tr><td><code>POST /agent</code></td><td>The tool-using agent. <span class="pill">rate-limited</span></td></tr>
+      <tr><td><code>POST /agent/stream</code></td><td>The agent, streaming each step. <span class="pill">rate-limited</span></td></tr>
+    </table></div>
+
+    <div class="grid2">
+      <div class="mini"><h4>CORS — the origin gate</h4><p>The API only accepts browser calls from an allowlist (<code>CORS_ORIGINS</code>, defaulting to just the production site). A non-matching origin gets no access-control header and the browser blocks it. It's <em>why</em> saving the page to your desktop breaks the chat: <code>file://</code> isn't on the list.</p></div>
+      <div class="mini"><h4>/inquiry — validation + honeypot</h4><p>Pydantic's <code>EmailStr</code> rejects a bad email with a 422. A hidden <code>website</code> field (a <strong>honeypot</strong>) that humans never see: if it's filled, a bot did it, so the API returns success <em>without storing</em>. No database configured → <strong>503</strong>, never a fake success, and it never leaks the driver error.</p></div>
+    </div>
+    <div class="say"><b>In an interview</b><i>"FastAPI with Pydantic on every boundary — validation before the handler, malformed input is an automatic 422, and the OpenAPI docs generate from the types. It's like Zod, wired into the framework and the docs."</i></div>
+  </section>
+
+  <section id="hardening">
+    <div class="eyebrow">The plumbing</div>
+    <h2>Rate limiting — protecting the paid endpoints</h2>
+    <p>The chat and agent endpoints each cost real money per call and are open to the internet, so a script could run up a bill. A thread-safe <strong>sliding-window</strong> limiter caps each client IP at <strong>20 requests per 60 seconds</strong> (both tunable by env var). Over the cap, the server returns <strong>429 Too Many Requests</strong> with a <code>Retry-After</code> header. A blocked request isn't recorded, so a persistent caller recovers as its window slides rather than locking itself out. A normal visitor stays far under the cap; a script hits it.</p>
+    <div class="say"><b>In an interview</b><i>"A per-IP sliding-window limiter on the paid endpoints — 429 with Retry-After. It's in-memory and process-local, which is the honest shape for one instance and a clean seam to swap in Redis if it ever scales out."</i></div>
+  </section>
+
+  <section id="frontend">
+    <div class="eyebrow">The plumbing</div>
+    <h2>The frontend — no framework, on purpose</h2>
+    <p>The whole site is one hand-written <code>index.html</code>: HTML for structure, CSS custom properties (<code>--accent</code>, <code>--bg</code>, …) as a design-token system, and vanilla JavaScript for behaviour. No React, no build step. The only heavy library is <strong>three.js</strong>, lazy-loaded and only for optional 3D layers that are <em>flagged off</em> in production — so a normal visitor downloads none of it.</p>
+    <div class="card">
+      <div class="whw">
+        <div class="row"><div class="k">Sections</div><div class="v"><code>build</code> (the roadmap + a deployment topology), <code>xray</code> (an architecture x-ray of one request), <code>evals</code>, <code>metrics</code> (reads <code>/metrics</code> live), <code>agent</code> (a live agent you can give a task), <code>services</code>, <code>inquiry</code>. Each is gated by a <strong>feature flag</strong> so a capability can flip on the week its module ships.</div></div>
+        <div class="row"><div class="k">The chat widget</div><div class="v">Calls <code>/chat/stream</code> and reads the Server-Sent Events, typing the answer in live, then rendering the touchable citation chips and the cost footer from the closing event. It picks its API base automatically — <code>localhost:8000</code> in dev, the Render URL in production.</div></div>
+        <div class="row"><div class="k">Why no framework</div><div class="v">For a portfolio, "I can build the fundamentals React sits on top of" is a stronger signal than reaching for a framework. It also loads fast and has almost nothing to break.</div></div>
+      </div>
+      <div class="say"><b>In an interview</b><i>"Vanilla HTML/CSS/JS with a CSS-variable design system — the fundamentals under React, not a dependency on it. The only library is three.js, lazy-loaded and off by default."</i></div>
+    </div>
+    <p>Two interactive explainers on the site are worth calling out: the <strong>Architecture X-Ray</strong> traces one request through its real layers (the system <em>in time</em>), and the <strong>Deployment Topology</strong> shows the six services and their connections (the system <em>in space</em>) — including the one push that fans out to two clouds, which a linear request trace can't express.</p>
+  </section>
+
+  <section id="deploy">
+    <div class="eyebrow">The plumbing</div>
+    <h2>Deployment — one push, two clouds</h2>
+    <p>There are no manual deploy steps. A <code>git push</code> to <code>main</code> triggers <strong>continuous deployment</strong>: Vercel rebuilds the site and Render rebuilds the API, in parallel, independently. Each half can ship or roll back on its own.</p>
+    <figure>
+      <pre class="mermaid">
+%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+flowchart LR
+  P([git push main]) --> GH[GitHub]
+  GH --> V[Vercel<br/>rebuilds the site]
+  GH --> R[Render<br/>rebuilds the API]
+  R -.->|reads secrets at runtime| S[[ANTHROPIC / OPENAI /<br/>DATABASE_URL — never baked in]]
+      </pre>
+      <figcaption>Push-to-deploy on both clouds. Secrets are injected at runtime as environment variables, never committed or built into an image.</figcaption>
+    </figure>
+    <p>The precise wording matters and is deliberate: the site says <em>continuous deployment</em> (automated deploy on push), <strong>not</strong> "CI/CD" — the automated test-gate in CI is a later module and isn't claimed yet. That's an honesty distinction, not a nitpick.</p>
+    <div class="say"><b>In an interview</b><i>"Push-to-deploy on both clouds, independently. I call it continuous deployment, not CI/CD, because the test-gate in CI is a later module and I don't claim it yet."</i></div>
+  </section>
+
+  <section id="docker">
+    <div class="eyebrow"><span class="num">07 / 08</span> Docker &amp; Terraform <span class="badge b-authored">Authored</span></div>
+    <h2>Written, committed — but honestly not yet verified</h2>
+    <p>Two deployment artifacts exist in the repo as reviewed starting points. Both are <strong>authored</strong>, not <strong>shipped</strong> — and the roadmap says exactly that, because the project's rule is that a green "Shipped" badge means <em>built and verified</em>.</p>
+    <div class="grid2">
+      <div class="mini"><h4>Docker <span class="badge b-authored">Authored</span></h4><p>A production-shaped <code>Dockerfile</code> (single <code>python:3.12-slim</code> stage, dependency-layer caching, a non-root <code>appuser</code>, a <code>/health</code> HEALTHCHECK) plus a <code>docker-compose.yml</code>. Every step is individually sound — but <code>docker build</code> was never actually run in the authoring environment (Docker isn't installed there), so it isn't claimed as built.</p></div>
+      <div class="mini"><h4>Terraform <span class="badge b-authored">Authored</span></h4><p>A <code>terraform/</code> config codifying the whole stack (Render + Neon + Vercel) with proper providers and secrets as <code>sensitive</code> variables. Not validated or applied — and critically, because the real infra already exists, adopting it needs <code>terraform import</code> first (a fresh apply would create duplicates).</p></div>
+    </div>
+    <div class="callout"><b>This is the honesty system doing its job.</b> "Shipped" is reserved for verified-live capabilities; "Authored" means the code is written and committed but its final build/apply hasn't been proven. Claiming these were shipped — when a <code>docker build</code> never ran and a <code>terraform apply</code> never happened — is exactly the overclaim the whole portfolio is built to avoid.</div>
+  </section>
+
+  <section id="tests">
+    <div class="eyebrow">The spine</div>
+    <h2>The test suite — where honesty becomes a test</h2>
+    <p><strong>62 tests</strong> across seven files, covering the pure logic without needing the network or a paid API: chunking, the grounding/refusal decision, citation renumbering, the plain-text strip, the conversation query, cost math, the metrics registry, the rate limiter, the agent's tools and loop (driven by a fake client), and the MCP server (over a real in-memory client↔server session).</p>
+    <div class="callout"><b>The standout: honesty guards.</b> Some tests fail the build if the corpus ever lists in-progress work as shipped — they make "don't overclaim" a <em>regression test</em>, not a good intention. And splitting the database search from the embedding call is what let retrieval be tested before an embedding key existed — which is how a real vector-binding bug got caught before it ever ran.</div>
+    <div class="say"><b>In an interview</b><i>"62 tests, including honesty guards that fail if the corpus overclaims — I made 'don't lie' a regression test. Retrieval is split so the database path is testable without the paid embedding API."</i></div>
+  </section>
+
+  <section id="honesty">
+    <div class="eyebrow">The spine</div>
+    <h2>The honesty system — the thesis of the whole thing</h2>
+    <p>One principle runs through every part: <strong>shipped work and in-progress work are always explicit, and nothing is claimed that can't be defended.</strong> It shows up everywhere — the corpus is audited before ingestion; the bot refuses rather than guesses; every metric names its window; the agent's prompt forbids calling building work "shipped"; the roadmap distinguishes three states; and tests fail if a claim outruns reality.</p>
+    <div class="legend">
+      <span><span class="badge b-shipped">Shipped</span> built &amp; verified live</span>
+      <span><span class="badge b-authored">Authored</span> written &amp; committed, not yet built/applied</span>
+      <span><span class="badge b-planned">Planned</span> not started</span>
+    </div>
+    <div class="say"><b>In an interview</b><i>"The through-line is honesty as an engineering constraint — the corpus is a claims surface, the bot refuses when unsure, every metric names its source, and tests fail if a claim outruns reality. That rigor is what separates a real system from a demo."</i></div>
+  </section>
+
+  <section id="roadmap">
+    <div class="eyebrow">The spine</div>
+    <h2>The module roadmap</h2>
+    <p>The system was built in public, one module at a time. Where each stands today:</p>
+    <div class="twrap"><table>
+      <tr><th>#</th><th>Module</th><th>What it added</th><th>Status</th></tr>
+      <tr><td class="num-col">01</td><td>RAG with citations</td><td>Answers grounded in real documents, with sources</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">02</td><td>Evals</td><td>108-case golden dataset, harness + LLM judge (calibration pending)</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">03</td><td>Observability</td><td>Request ids, JSON logs, <code>/metrics</code>, the trace, connection pooling</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">04</td><td>Agents</td><td>A tool-using agent loop over the portfolio data</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">05</td><td>MCP server</td><td>The same tools over the Model Context Protocol</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">06</td><td>Streaming</td><td>Token-by-token responses over SSE</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">07</td><td>Docker</td><td>A production Dockerfile + compose</td><td><span class="badge b-authored">Authored</span></td></tr>
+      <tr><td class="num-col">08</td><td>Terraform</td><td>The stack as infrastructure-as-code</td><td><span class="badge b-authored">Authored</span></td></tr>
+    </table></div>
+    <p style="font-size:14px;color:var(--mut)">Plus hardening that isn't a numbered module: <strong>rate limiting</strong> (shipped) and an opt-in <strong>hosted MCP</strong> endpoint (deployed dormant behind a flag).</p>
+  </section>
+
+  <section id="glossary">
+    <div class="eyebrow">Reference</div>
+    <h2>Glossary — say these correctly</h2>
+    <dl class="gloss">
+      <dt>RAG</dt><dd>Retrieval-Augmented Generation: retrieve relevant documents, then have the model answer using only them.</dd>
+      <dt>Embedding</dt><dd>A list of numbers (a vector) representing a piece of text's meaning. Here, 1536 numbers from OpenAI's <code>text-embedding-3-small</code>.</dd>
+      <dt>Vector / dimensions</dt><dd>Each text becomes a point in 1536-dimensional space; nearby points mean similar things.</dd>
+      <dt>Cosine similarity</dt><dd>How aligned two vectors' directions are. pgvector's <code>&lt;=&gt;</code> gives cosine <em>distance</em>; similarity is <code>1 − distance</code>.</dd>
+      <dt>Chunk</dt><dd>A ~1000-character slice of a document that gets embedded and retrieved (with 150 chars of overlap).</dd>
+      <dt>pgvector</dt><dd>A Postgres extension adding a <code>VECTOR</code> type and similarity search.</dd>
+      <dt>HNSW</dt><dd>The index that makes nearest-vector search fast without scanning every row; builds incrementally, no training.</dd>
+      <dt>Grounding</dt><dd>Constraining the model to answer only from provided sources.</dd>
+      <dt>Hallucination</dt><dd>The model confidently making something up; grounding + a refusal threshold is the defense.</dd>
+      <dt>Top-k</dt><dd>Retrieving the k best matches (here, k = 5).</dd>
+      <dt>Threshold</dt><dd>The minimum similarity (0.35) below which the bot refuses.</dd>
+      <dt>Agent</dt><dd>An AI that loops — decides a tool, runs it, reads the result, repeats — up to 6 times here.</dd>
+      <dt>Tool</dt><dd>A specific action the AI can trigger; here four read-only lookups over the corpus and service list.</dd>
+      <dt>MCP</dt><dd>Model Context Protocol — a standard way to offer tools to any AI client.</dd>
+      <dt>stdio</dt><dd>Talking over a program's standard input/output pipes instead of a network port.</dd>
+      <dt>SSE</dt><dd>Server-Sent Events — a one-way stream of <code>data: {…}</code> messages, used to send tokens live.</dd>
+      <dt>Middleware</dt><dd>Code that wraps every request — here it ids, times, logs, and records each one.</dd>
+      <dt>CORS</dt><dd>A browser rule about which sites may call an API; only the portfolio's origin is allowed by default.</dd>
+      <dt>Rate limiting</dt><dd>Capping requests per client IP in a window (20 / 60s), returning 429 when exceeded.</dd>
+      <dt>Connection pool</dt><dd>Reusing warm database connections instead of reconnecting per request; here validated on checkout.</dd>
+      <dt>Continuous deployment</dt><dd>A push to <code>main</code> auto-deploys — no manual step. (CI/CD adds an automated test-gate, not yet claimed.)</dd>
+      <dt>Infrastructure-as-code</dt><dd>Describing servers/databases in text files (Terraform) instead of clicking dashboards.</dd>
+    </dl>
+  </section>
+
+  <div class="footer">
+    <p><b>How to use this:</b> read it once end to end, then pick one section and explain it out loud from scratch. Where you stall is the gap — re-read that one. The three worth nailing first: <b>the refusal threshold</b> (§01), <b>the observability loop</b> (§03), and <b>the agent loop</b> (§05). Get those to where you can argue the trade-offs, and you can defend the whole system.</p>
+    <p style="margin-top:14px;color:var(--faint);font-size:12.5px;">Every figure and value in this guide was read from the source code. Where a capability isn't verified, it's labelled Authored, not Shipped — the same honesty rule the system holds itself to.</p>
+  </div>
+</main>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+</script>
+</body>
+</html>
