@@ -516,14 +516,14 @@ flowchart LR
   </section>
 
   <section id="docker">
-    <div class="eyebrow"><span class="num">07 / 08</span> Docker &amp; Terraform <span class="badge b-authored">Authored</span></div>
-    <h2>Written, committed — but honestly not yet verified</h2>
-    <p>Two deployment artifacts exist in the repo as reviewed starting points. Both are <strong>authored</strong>, not <strong>shipped</strong> — and the roadmap says exactly that, because the project's rule is that a green "Shipped" badge means <em>built and verified</em>.</p>
+    <div class="eyebrow"><span class="num">07 / 08</span> Docker &amp; Terraform</div>
+    <h2>The last two — one shipped, one a step away</h2>
+    <p>Two deployment artifacts live in the repo. The honesty rule is that a green "Shipped" badge means <em>built and verified</em> — and by that rule these two are now at different stages.</p>
     <div class="grid2">
-      <div class="mini"><h4>Docker <span class="badge b-authored">Authored</span></h4><p>A production-shaped <code>Dockerfile</code> (single <code>python:3.12-slim</code> stage, dependency-layer caching, a non-root <code>appuser</code>, a <code>/health</code> HEALTHCHECK) plus a <code>docker-compose.yml</code>. Every step is individually sound — but <code>docker build</code> was never actually run in the authoring environment (Docker isn't installed there), so it isn't claimed as built.</p></div>
-      <div class="mini"><h4>Terraform <span class="badge b-authored">Authored</span></h4><p>A <code>terraform/</code> config codifying the whole stack (Render + Neon + Vercel) with proper providers and secrets as <code>sensitive</code> variables. Not validated or applied — and critically, because the real infra already exists, adopting it needs <code>terraform import</code> first (a fresh apply would create duplicates).</p></div>
+      <div class="mini"><h4>Docker <span class="badge b-shipped">Shipped</span></h4><p>A production <code>Dockerfile</code> (single <code>python:3.12-slim</code> stage, dependency-layer caching, a non-root <code>appuser</code>, a <code>/health</code> HEALTHCHECK) plus <code>docker-compose.yml</code>. <strong>Verified end to end:</strong> <code>docker compose up --build</code> builds the image, the container comes up <em>healthy</em> (its HEALTHCHECK passes), and <code>GET /health</code> returns <code>{"status":"ok"}</code>.</p></div>
+      <div class="mini"><h4>Terraform <span class="badge b-authored">Authored</span></h4><p>A <code>terraform/</code> config codifying the whole stack (Render + Neon + Vercel), with secrets as <code>sensitive</code> variables. <strong>Validated</strong> — <code>terraform validate</code> passes against the real provider schemas (and validating even caught and fixed a real attribute bug). Not yet applied: adopting the existing infra needs <code>terraform import</code> + credentials, so it stays Authored until that round-trips clean.</p></div>
     </div>
-    <div class="callout"><b>This is the honesty system doing its job.</b> "Shipped" is reserved for verified-live capabilities; "Authored" means the code is written and committed but its final build/apply hasn't been proven. Claiming these were shipped — when a <code>docker build</code> never ran and a <code>terraform apply</code> never happened — is exactly the overclaim the whole portfolio is built to avoid.</div>
+    <div class="callout"><b>The honesty system, working in both directions.</b> Docker went green the moment a real <code>docker build</code> proved it — not a step before. Terraform is honestly held at "authored &amp; validated" because a <code>terraform apply</code> against the live stack hasn't happened yet. "Shipped" is earned by verification, and only by verification.</div>
   </section>
 
   <section id="tests">
@@ -558,8 +558,8 @@ flowchart LR
       <tr><td class="num-col">04</td><td>Agents</td><td>A tool-using agent loop over the portfolio data</td><td><span class="badge b-shipped">Shipped</span></td></tr>
       <tr><td class="num-col">05</td><td>MCP server</td><td>The same tools over the Model Context Protocol</td><td><span class="badge b-shipped">Shipped</span></td></tr>
       <tr><td class="num-col">06</td><td>Streaming</td><td>Token-by-token responses over SSE</td><td><span class="badge b-shipped">Shipped</span></td></tr>
-      <tr><td class="num-col">07</td><td>Docker</td><td>A production Dockerfile + compose</td><td><span class="badge b-authored">Authored</span></td></tr>
-      <tr><td class="num-col">08</td><td>Terraform</td><td>The stack as infrastructure-as-code</td><td><span class="badge b-authored">Authored</span></td></tr>
+      <tr><td class="num-col">07</td><td>Docker</td><td>A production Dockerfile + compose — image builds &amp; runs healthy</td><td><span class="badge b-shipped">Shipped</span></td></tr>
+      <tr><td class="num-col">08</td><td>Terraform</td><td>The stack as infrastructure-as-code — validated, pending apply</td><td><span class="badge b-authored">Authored</span></td></tr>
     </table></div>
     <p style="font-size:14px;color:var(--mut)">Plus hardening that isn't a numbered module: <strong>rate limiting</strong> (shipped) and an opt-in <strong>hosted MCP</strong> endpoint (deployed dormant behind a flag).</p>
   </section>
