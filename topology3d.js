@@ -417,10 +417,10 @@ export function init(mount, opts) {
         let hit = null;
         for (let j = 0; j < i; j++) {
           const q = order[j];
-          if (Math.abs(s.x - q.x) < (s.w + q.w) / 2 + 12 && Math.abs(s.y - q.y) < (s.h + q.h) / 2 + 6) { hit = q; break; }
+          if (Math.abs(s.x - q.x) < (s.w + q.w) / 2 + 14 && Math.abs(s.y - q.y) < (s.h + q.h) / 2 + 8) { hit = q; break; }
         }
         if (!hit) break;
-        s.y = hit.y + (s.y >= hit.y ? 1 : -1) * ((s.h + hit.h) / 2 + 7);
+        s.y = hit.y + (s.y >= hit.y ? 1 : -1) * ((s.h + hit.h) / 2 + 9);
       }
       s.el.style.transform = "translate(-50%,-50%) translate(" + Math.round(s.x) + "px," + Math.round(s.y) + "px)";
     }
@@ -453,7 +453,10 @@ export function init(mount, opts) {
       const d = camera.position.distanceTo(n.g.position);
       const o = clamp(1 - (d - 24) / 40, 0.1, 1);
       n.label.material.opacity = o;
-      n.sub.material.opacity = o * 0.8;
+      // Sub-labels were the main source of clutter (all six on at once, sitting on their nodes).
+      // Show a node's description only when it is active in the current flow step or hovered — the
+      // six node names stay put; the descriptions fade in only when they're relevant.
+      n.sub.material.opacity = (touched || hot) ? o : 0;
     });
 
     resetActors();

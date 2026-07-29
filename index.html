@@ -1217,10 +1217,7 @@ const FEATURES = {
   if (!sec || !mount) return;
   const previewing = new URLSearchParams(location.search).has("topology3d");
   const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  // The 3D topology is an unfinished experiment (ships off; label placement still overlaps), so it
-  // no longer auto-enables on localhost — localhost now shows the same clean 2D topology employers
-  // see. Preview the 3D deliberately with ?topology3d=1.
-  const enabled = (typeof FEATURES !== "undefined" && FEATURES.topology3d) || previewing;
+  const enabled = (typeof FEATURES !== "undefined" && FEATURES.topology3d) || previewing || isLocal;
   if (!enabled) return;
 
   let webgl = false;
