@@ -109,6 +109,13 @@
   figure{margin:22px 0;background:var(--figure);border:1px solid var(--figure-line);border-radius:14px;
     padding:22px 18px 10px;box-shadow:var(--shadow);overflow-x:auto;}
   figure .mermaid{display:flex;justify-content:center;min-width:min-content;}
+  /* Safety net: never let a Mermaid label be cut off. foreignObject clips to its bounds by
+     default, so if a node is ever sized a hair too narrow, force the label to overflow visibly
+     instead of clipping the text. (With htmlLabels:false the labels are SVG <text> and this is a
+     no-op; it only matters as a fallback.) */
+  .mermaid foreignObject{overflow:visible;}
+  .mermaid foreignObject>div{overflow:visible!important;white-space:nowrap;}
+  .mermaid .nodeLabel,.mermaid .edgeLabel,.mermaid span.nodeLabel,.mermaid .label{overflow:visible;}
   figcaption{font-family:var(--mono);font-size:11.5px;color:#5a6478;text-align:center;padding:12px 8px 6px;letter-spacing:.02em;}
 
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:18px 0;box-shadow:var(--shadow);}
@@ -208,7 +215,7 @@
     </ul>
     <figure>
       <pre class="mermaid">
-%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+%%{init:{'theme':'base','flowchart':{'htmlLabels':false},'themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
 flowchart LR
   Dev([You: git push]) --> GH[GitHub<br/>source of truth]
   GH -- rebuilds --> V[Vercel<br/>the website]
@@ -253,7 +260,7 @@ flowchart LR
     <p>When you type a question into the chat and hit send, here is every real step it takes — from the browser to the answer and back. Each later section zooms into one part of this.</p>
     <figure>
       <pre class="mermaid">
-%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+%%{init:{'theme':'base','flowchart':{'htmlLabels':false},'themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
 flowchart TD
   B([Browser POSTs the conversation]) --> C{CORS<br/>allowed origin?}
   C -- no --> X[Browser blocks it]
@@ -286,7 +293,7 @@ flowchart TD
 
     <figure>
       <pre class="mermaid">
-%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+%%{init:{'theme':'base','flowchart':{'htmlLabels':false},'themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
 flowchart LR
   subgraph Ingest [ Ingestion — run once, offline ]
     direction TB
@@ -408,7 +415,7 @@ flowchart LR
 
     <figure>
       <pre class="mermaid">
-%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+%%{init:{'theme':'base','flowchart':{'htmlLabels':false},'themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
 flowchart TD
   T([Task: 'Is he a fit for this role?']) --> LLM[Claude + the 4 tool schemas]
   LLM --> D{Asked for<br/>a tool?}
@@ -503,7 +510,7 @@ flowchart TD
     <p>There are no manual deploy steps. A <code>git push</code> to <code>main</code> triggers <strong>continuous deployment</strong>: Vercel rebuilds the site and Render rebuilds the API, in parallel, independently. Each half can ship or roll back on its own.</p>
     <figure>
       <pre class="mermaid">
-%%{init:{'theme':'base','themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
+%%{init:{'theme':'base','flowchart':{'htmlLabels':false},'themeVariables':{'fontFamily':'ui-monospace, monospace','fontSize':'13px','primaryColor':'#e9f0ff','primaryBorderColor':'#3f74f5','primaryTextColor':'#17223a','lineColor':'#8794ab','secondaryColor':'#e4f6f2','tertiaryColor':'#f2f5fb'}}}%%
 flowchart LR
   P([git push main]) --> GH[GitHub]
   GH --> V[Vercel<br/>rebuilds the site]
