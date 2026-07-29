@@ -146,13 +146,13 @@ export function init(mount, opts) {
     g.add(cage);
 
     const label = killLabel(makeLabel(spec.label, spec.pending ? "#8b93a5" : "#eef1f7", 0.78));
-    label.position.set(0, 2.3, 0);
-    label.userData.prio = 2;
+    label.position.set(0, 2.4, 0);
+    label.userData.prio = 5;   // permanent node labels win position; transient notes yield to them
     g.add(label);
 
     const sub = killLabel(makeLabel(spec.sub, spec.pending ? "#6f7787" : "#7d8ba6", 0.44));
-    sub.position.set(0, 1.72, 0);
-    sub.userData.prio = 1;
+    sub.position.set(0, 1.78, 0);
+    sub.userData.prio = 4;
     g.add(sub);
 
     const hit = new THREE.Mesh(hitGeo, hitMat);
@@ -417,10 +417,10 @@ export function init(mount, opts) {
         let hit = null;
         for (let j = 0; j < i; j++) {
           const q = order[j];
-          if (Math.abs(s.x - q.x) < (s.w + q.w) / 2 + 8 && Math.abs(s.y - q.y) < (s.h + q.h) / 2 + 4) { hit = q; break; }
+          if (Math.abs(s.x - q.x) < (s.w + q.w) / 2 + 12 && Math.abs(s.y - q.y) < (s.h + q.h) / 2 + 6) { hit = q; break; }
         }
         if (!hit) break;
-        s.y = hit.y + (s.y >= hit.y ? 1 : -1) * ((s.h + hit.h) / 2 + 5);
+        s.y = hit.y + (s.y >= hit.y ? 1 : -1) * ((s.h + hit.h) / 2 + 7);
       }
       s.el.style.transform = "translate(-50%,-50%) translate(" + Math.round(s.x) + "px," + Math.round(s.y) + "px)";
     }
