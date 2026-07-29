@@ -490,7 +490,7 @@
       <div class="road"><span class="rnum">05</span><span class="rname">MCP server</span><span class="rnote">the portfolio tools over the Model Context Protocol — <a href="https://github.com/samchill93/samuel-ai-api/blob/main/mcp_server.py" target="_blank" rel="noopener">the server</a></span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">06</span><span class="rname">Streaming</span><span class="rnote">token-by-token responses — ask the assistant and watch it type</span><span class="badge live">Shipped</span></div>
       <div class="road"><span class="rnum">07</span><span class="rname">Docker</span><span class="rnote">containerized, reproducible builds — <a href="https://github.com/samchill93/samuel-ai-api/blob/main/Dockerfile" target="_blank" rel="noopener">the image</a> builds &amp; runs healthy</span><span class="badge live">Shipped</span></div>
-      <div class="road"><span class="rnum">08</span><span class="rname">Terraform</span><span class="rnote">the stack as infrastructure-as-code — <a href="https://github.com/samchill93/samuel-ai-api/tree/main/terraform" target="_blank" rel="noopener">authored &amp; validated</a>, pending import + apply</span><span class="badge authored">Authored</span></div>
+      <div class="road"><span class="rnum">08</span><span class="rname">Terraform</span><span class="rnote">the whole stack as infrastructure-as-code — <a href="https://github.com/samchill93/samuel-ai-api/tree/main/terraform" target="_blank" rel="noopener">imported</a>, and <code>terraform plan</code> round-trips clean against live</span><span class="badge live">Shipped</span></div>
     </div>
   </section>
 
@@ -523,7 +523,7 @@
     <div class="sub">What the evals caught</div>
     <div class="eval-catch">
       <span class="badge live">Found → fixed → deployed</span>
-      <p>Asked whether Samuel can do response streaming and Terraform, the live bot answered <em>yes, he's shipped them</em> — both are in progress, not shipped. The judge flagged it. The grounding rule was tightened, the fix re-measured on the failing cases, then deployed and verified on production — the bot now says that work is in progress. <strong>Measure → find a real bug → fix → re-measure → deploy → verify.</strong> Closing that loop is the point of the module.</p>
+      <p>Early on, asked whether Samuel had shipped response streaming and Terraform — both still in progress at the time — the live bot answered <em>yes, he's shipped them</em>. The judge flagged the overclaim. The grounding rule was tightened, the fix re-measured on the failing cases, then deployed and verified on production — the bot went back to calling that work in progress. (Both have since shipped for real, the honest way.) <strong>Measure → find a real bug → fix → re-measure → deploy → verify.</strong> Closing that loop is the point of the module.</p>
     </div>
 
     <div class="sub">Judge scores <span class="badge planned">Calibration pending</span></div>
