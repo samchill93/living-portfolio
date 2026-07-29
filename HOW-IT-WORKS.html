@@ -603,7 +603,18 @@ flowchart LR
 
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+  // htmlLabels:false lays labels out as real SVG <text> so each node is sized from the actual
+  // rendered glyphs (getBBox) — labels can no longer be clipped by a too-narrow foreignObject,
+  // which is what happened when Mermaid measured with a proportional font but rendered mono.
+  // Rendering after fonts are ready avoids a measure-before-font mismatch.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: false, useMaxWidth: true, padding: 14, nodeSpacing: 54, rankSpacing: 58 },
+  });
+  const render = () => mermaid.run({ querySelector: '.mermaid' });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+  else render();
 </script>
 </body>
 </html>
