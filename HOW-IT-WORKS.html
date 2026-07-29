@@ -164,6 +164,7 @@
   <div class="brand">Living Portfolio</div>
   <div class="brandsub">architecture guide · v2</div>
   <nav>
+    <a href="index.html">&larr; Back to the portfolio</a>
     <a href="#top">Overview</a>
     <a href="#picture"><b>00</b>The big picture</a>
     <a href="#primer">Concepts in 60 seconds</a>
@@ -172,7 +173,7 @@
     <a href="#rag"><b>01</b>RAG assistant</a>
     <a href="#evals"><b>02</b>Evals</a>
     <a href="#obs"><b>03</b>Observability</a>
-    <a href="#agent"><b>05</b>The agent</a>
+    <a href="#agent"><b>04</b>The agent</a>
     <a href="#mcp"><b>05</b>MCP server</a>
     <a href="#stream"><b>06</b>Streaming</a>
     <a class="grp">The plumbing</a>
@@ -401,7 +402,7 @@ flowchart LR
   </section>
 
   <section id="agent">
-    <div class="eyebrow"><span class="num">05</span> The agent <span class="badge b-shipped">Shipped</span></div>
+    <div class="eyebrow"><span class="num">04</span> The agent <span class="badge b-shipped">Shipped</span></div>
     <h2>An AI that uses tools in a loop</h2>
     <p class="lead">The chat answers one question in one shot. The <strong>agent</strong> is different: it's given a task plus a menu of <strong>tools</strong>, and it decides which to call, reads the results, and iterates until it can answer. That autonomous, multi-step tool use is the actual draw of agents.</p>
 
@@ -487,7 +488,7 @@ flowchart TD
     <p>The whole site is one hand-written <code>index.html</code>: HTML for structure, CSS custom properties (<code>--accent</code>, <code>--bg</code>, …) as a design-token system, and vanilla JavaScript for behaviour. No React, no build step. The only heavy library is <strong>three.js</strong>, lazy-loaded and only for optional 3D layers that are <em>flagged off</em> in production — so a normal visitor downloads none of it.</p>
     <div class="card">
       <div class="whw">
-        <div class="row"><div class="k">Sections</div><div class="v"><code>build</code> (the roadmap + a deployment topology), <code>xray</code> (an architecture x-ray of one request), <code>evals</code>, <code>metrics</code> (reads <code>/metrics</code> live), <code>agent</code> (a live agent you can give a task), <code>services</code>, <code>inquiry</code>. Each is gated by a <strong>feature flag</strong> so a capability can flip on the week its module ships.</div></div>
+        <div class="row"><div class="k">Sections</div><div class="v"><code>build</code> (the roadmap + a deployment topology), <code>xray</code> (an architecture x-ray of one request), <code>evals</code>, <code>metrics</code> (reads <code>/metrics</code> live), <code>agent</code> (a live agent you can give a task), <code>services</code>, <code>inquiry</code>. Four of them — <code>xray</code>, <code>evals</code>, <code>metrics</code>, and <code>agent</code> — are each gated by a <strong>feature flag</strong> so a capability can flip on the week its module ships; <code>build</code>, <code>services</code>, and <code>inquiry</code> always render.</div></div>
         <div class="row"><div class="k">The chat widget</div><div class="v">Calls <code>/chat/stream</code> and reads the Server-Sent Events, typing the answer in live, then rendering the touchable citation chips and the cost footer from the closing event. It picks its API base automatically — <code>localhost:8000</code> in dev, the Render URL in production.</div></div>
         <div class="row"><div class="k">Why no framework</div><div class="v">For a portfolio, "I can build the fundamentals React sits on top of" is a stronger signal than reaching for a framework. It also loads fast and has almost nothing to break.</div></div>
       </div>
@@ -594,7 +595,7 @@ flowchart LR
   </section>
 
   <div class="footer">
-    <p><b>How to use this:</b> read it once end to end, then pick one section and explain it out loud from scratch. Where you stall is the gap — re-read that one. The three worth nailing first: <b>the refusal threshold</b> (§01), <b>the observability loop</b> (§03), and <b>the agent loop</b> (§05). Get those to where you can argue the trade-offs, and you can defend the whole system.</p>
+    <p><b>How to use this:</b> read it once end to end, then pick one section and explain it out loud from scratch. Where you stall is the gap — re-read that one. The three worth nailing first: <b>the refusal threshold</b> (§01), <b>the observability loop</b> (§03), and <b>the agent loop</b> (§04). Get those to where you can argue the trade-offs, and you can defend the whole system.</p>
     <p style="margin-top:14px;color:var(--faint);font-size:12.5px;">Every figure and value in this guide was read from the source code. Where a capability isn't verified, it's labelled Authored, not Shipped — the same honesty rule the system holds itself to.</p>
   </div>
 </main>
