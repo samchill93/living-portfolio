@@ -1059,7 +1059,7 @@ const FEATURES = {
       code: 'uvicorn main:app --host 0.0.0.0 --port $PORT' },
     { label: "CORS gate", where: "samuel-ai-api/main.py",
       plain: "Before a browser request reaches any handler, the API checks which website it came from. Production is locked to the live portfolio domain; localhost is only added through an environment variable during development. This is why saving this page to your desktop and opening that copy makes the chat fail — the browser blocks the response.",
-      code: 'DEFAULT_ORIGINS = "https://living-portfolio-chi.vercel.app"\nallowed_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", DEFAULT_ORIGINS).split(",") if o.strip()]' },
+      code: 'DEFAULT_ORIGINS = "https://samuelhill.online,https://www.samuelhill.online,https://living-portfolio-chi.vercel.app"\nallowed_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", DEFAULT_ORIGINS).split(",") if o.strip()]' },
     { label: "FastAPI + Pydantic", where: "samuel-ai-api/main.py",
       plain: "The request body is validated against a typed model before the handler runs. If a field is missing or the wrong shape, FastAPI returns a 422 listing the exact field errors and the handler never executes. It is the same mechanism the contact form on this page demonstrates live.",
       code: 'class Message(BaseModel):\n    role: str\n    content: str\n\nclass ChatRequest(BaseModel):\n    messages: list[Message]' },
