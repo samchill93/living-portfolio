@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Samuel Hill — Case Studies</title>
+<meta name="description" content="Engineering case studies from the Living Portfolio — RAG, evals, observability, agents, MCP, streaming — plus client product work. Each follows Problem → Constraints → Architecture → Trade-offs → Metrics → What broke, and links to a running system." />
+<link rel="canonical" href="https://samuelhill.online/case-studies.html" />
+<meta name="theme-color" content="#0a0b0e" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Samuel Hill — Living AI Portfolio" />
+<meta property="og:url" content="https://samuelhill.online/case-studies.html" />
+<meta property="og:title" content="Samuel Hill — Case Studies" />
+<meta property="og:description" content="Problem → Constraints → Architecture → Trade-offs → Metrics → What broke. Eight write-ups, each linking to a running system." />
+<meta property="og:image" content="https://samuelhill.online/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://samuelhill.online/og-image.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0a0b0e; --bg2:#0d0f14; --surface:#111420; --surface2:#161a26; --elev:#1b2030;
+    --ink:#eef1f7; --ink2:#c3c9d6; --mut:#8891a2; --faint:#5b6472;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.15);
+    --accent:#5b8dff; --accent-2:#38d6c4; --accent-soft:rgba(91,141,255,.16);
+    --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink2);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--accent-soft);color:#fff;}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(20px,4vw,40px) 84px;}
+
+  .rtop{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:rgba(10,11,14,.82);backdrop-filter:blur(10px);z-index:10;}
+  .rtop .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);}
+  .rtop .brand::before{content:"";width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 12px rgba(91,141,255,.7);}
+  .rtop-actions{display:flex;align-items:center;gap:18px;}
+  .rtop a.nav{font-size:13.5px;color:var(--mut);transition:color .16s;}
+  .rtop a.nav:hover{color:var(--ink);}
+
+  .rhead{padding:48px 0 28px;}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-2);margin-bottom:18px;}
+  .rhead h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.4vw,50px);letter-spacing:-.03em;line-height:1.02;
+    background:linear-gradient(180deg,#ffffff,#adb5c7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .rhead p{font-size:16px;color:var(--ink2);max-width:68ch;margin-top:18px;}
+  .rhead p .m{font-family:var(--mono);font-size:13px;color:var(--mut);}
+
+  .sec{padding:38px 0 4px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;font-weight:500;
+    display:flex;align-items:center;gap:12px;}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+
+  .cs{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);
+    border-radius:15px;padding:22px 24px;display:flex;flex-direction:column;gap:11px;transition:transform .2s,border-color .2s,box-shadow .2s;}
+  .cs::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);}
+  .cs:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 22px 50px -28px rgba(91,141,255,.5);}
+  .cs-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .cs-num{font-family:var(--mono);font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums;}
+  .cs h3{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;color:var(--ink);line-height:1.2;}
+  .cs p{font-size:14px;color:var(--mut);line-height:1.62;flex:1;}
+  .cs-meta{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.02em;line-height:1.7;}
+  .cs-links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;font-weight:600;margin-top:2px;}
+  .cs-links a{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .16s;}
+  .cs-links a:hover{border-color:var(--accent);}
+  .cs-links a.sub{color:var(--accent-2);}
+  .badge{flex-shrink:0;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:99px;}
+  .badge.live{background:rgba(56,214,196,.14);color:var(--accent-2);border:1px solid rgba(56,214,196,.34);}
+  .badge.built{background:rgba(91,141,255,.13);color:var(--accent);border:1px solid rgba(91,141,255,.32);}
+
+  .note{margin:26px 0 2px;font-size:13px;color:var(--faint);font-family:var(--mono);letter-spacing:.02em;}
+
+  .rfoot{margin-top:46px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--faint);}
+  .rfoot a{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .16s;}
+  .rfoot a:hover{border-color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="rtop">
+    <a class="brand" href="/">Living AI Portfolio</a>
+    <div class="rtop-actions">
+      <a class="nav" href="/">&larr; Portfolio</a>
+      <a class="nav" href="/HOW-IT-WORKS.html">How it works</a>
+      <a class="nav" href="/resume.html">Résumé</a>
+    </div>
+  </div>
+
+  <header class="rhead">
+    <div class="kicker">Case Studies</div>
+    <h1>What I built, and why — with the running systems attached.</h1>
+    <p>Each write-up follows the same structure a reviewer can scan in a minute — <span class="m">Problem → Constraints → Architecture → Trade-offs → Metrics → What broke → What&rsquo;s next</span> — because junior engineers list tools and senior engineers justify them. Every one links to code you can read and, where it&rsquo;s live, a system you can use.</p>
+  </header>
+
+  <section class="sec">
+    <div class="eyebrow">The Living Portfolio — engineering build log</div>
+    <div class="grid">
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">01 · RAG</span><span class="badge live">Live</span></div>
+        <h3>RAG with visible, touchable citations</h3>
+        <p>The assistant answers <em>only</em> from real documents, shows where each claim came from, and refuses honestly when the documents don&rsquo;t cover a question — for a portfolio whose whole thesis is &ldquo;everything here is true and defensible.&rdquo;</p>
+        <div class="cs-meta">pgvector HNSW · top-5 cosine · 0.35 refusal threshold · $0 refusals</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-1-rag.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="/#build" target="_blank" rel="noopener">Try the chat ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">02 · Evals</span><span class="badge live">Shipped</span></div>
+        <h3>Measuring the RAG assistant with evals</h3>
+        <p>A 108-case golden dataset scored by a deterministic harness and an LLM-as-judge — which caught a <em>real</em> overclaim bug that was fixed, re-measured, and redeployed. Judge-vs-human calibration is the one honest open step.</p>
+        <div class="cs-meta">0.992 recall@5 · 92/92 valid citations · $0.41/run · calibration pending</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-2-evals.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="/#evals" target="_blank" rel="noopener">See the numbers ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">03 · Observability</span><span class="badge live">Live</span></div>
+        <h3>Every request explains itself</h3>
+        <p>Every response carries an <code>X-Request-ID</code>; <code>/chat</code> returns a phase-timed trace; logs are structured JSON; and a public <code>/metrics</code> endpoint reports latency and cost — all self-hosted, no external APM, with honest per-process windows.</p>
+        <div class="cs-meta">request IDs · p50/p95 latency · running token/cost tally · public /metrics</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-3-observability.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="https://samuel-ai-api.onrender.com/metrics" target="_blank" rel="noopener">Live /metrics ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">04 · Agent</span><span class="badge live">Live</span></div>
+        <h3>A tool-using agent that shows its work</h3>
+        <p>A real tool-use loop — not a scripted pipeline — where Claude decides which read-only tools to call over Samuel&rsquo;s data, iterates on the results, and returns <em>every step</em> it took, so the autonomy is visible instead of a black box.</p>
+        <div class="cs-meta">4 read-only tools · bounded iterations · per-run cost reported</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-5-agents.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="/#agent" target="_blank" rel="noopener">Give it a task ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">05 · MCP</span><span class="badge live">Shipped</span></div>
+        <h3>Publishing the tools as an MCP server</h3>
+        <p>The same four tools exposed over the Model Context Protocol so any MCP client (Claude Desktop, an IDE assistant) can discover and call them — reusing one source of truth, and verified against a real client rather than assumed to work.</p>
+        <div class="cs-meta">open-source · stdio transport · verified: initialize → list → call</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-5-mcp.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="https://github.com/samchill93/samuel-ai-api/blob/main/mcp_server.py" target="_blank" rel="noopener">The server ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">06 · Streaming</span><span class="badge live">Live</span></div>
+        <h3>Streaming the answer, token by token</h3>
+        <p>Server-Sent Events type the answer out live, then finalize renumbered citations and real per-answer cost once the full text exists — surviving the observability middleware and the proxy, and degrading honestly if the stream breaks.</p>
+        <div class="cs-meta">SSE · /chat/stream · finalize step preserved · honest degradation</div>
+        <div class="cs-links"><a href="https://github.com/samchill93/samuel-ai-api/blob/main/case-studies/module-6-streaming.md" target="_blank" rel="noopener">Read the write-up →</a><a class="sub" href="/#build" target="_blank" rel="noopener">Watch it type ↗</a></div>
+      </div>
+
+    </div>
+    <p class="note">The full architecture, end to end, is written up in the <a href="/HOW-IT-WORKS.html" style="color:var(--accent);">How-it-works guide</a>. Docker &amp; Terraform round out the eight shipped modules.</p>
+  </section>
+
+  <section class="sec">
+    <div class="eyebrow">Product &amp; client work</div>
+    <div class="grid">
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">Cadence</span><span class="badge live">Live demo</span></div>
+        <h3>AI customer-support chatbot</h3>
+        <p>A custom support assistant on the Claude API, grounded in a product&rsquo;s real knowledge: it answers only from known content, refuses honestly instead of hallucinating, and hands off cleanly to a human. React + Vercel serverless, with the API key held server-side.</p>
+        <div class="cs-meta">Claude API · grounded + refusal + human handoff · React / Vercel serverless</div>
+        <div class="cs-links"><a href="https://cadence-support-bot.vercel.app" target="_blank" rel="noopener">Live demo ↗</a><a class="sub" href="https://github.com/samchill93/cadence-support-bot" target="_blank" rel="noopener">Repo ↗</a></div>
+      </div>
+
+      <div class="cs">
+        <div class="cs-top"><span class="cs-num">Meridian</span><span class="badge built">Live demo</span></div>
+        <h3>Framework-free brand landing page</h3>
+        <p>A responsive landing page built from scratch with no framework — CSS design tokens, fluid type with <code>clamp()</code>, and an auto-fit grid — to show the platform fundamentals without a framework crutch. Push-to-deploy on Vercel.</p>
+        <div class="cs-meta">no framework · CSS tokens · clamp() fluid type · auto-fit grid</div>
+        <div class="cs-links"><a href="https://meridian-landing-mu.vercel.app" target="_blank" rel="noopener">Live demo ↗</a><a class="sub" href="https://github.com/samchill93/meridian-landing" target="_blank" rel="noopener">Repo ↗</a></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="rfoot">Every claim here links to a running system or its source. Start at <a href="/">samuelhill.online</a> · read the <a href="/HOW-IT-WORKS.html">architecture guide</a> · or the <a href="/resume.html">résumé</a>.</footer>
+
+</div>
+</body>
+</html>
