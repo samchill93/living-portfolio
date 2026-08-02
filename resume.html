@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Samuel Hill &mdash; R&eacute;sum&eacute;</title>
+<meta name="description" content="R&eacute;sum&eacute; of Samuel Hill &mdash; Full-Stack Agentic AI Engineer. Production LLM applications with retrieval grounding, measured evals, tracing, and infrastructure as code." />
+<link rel="canonical" href="https://samuelhill.online/resume.html" />
+<meta name="theme-color" content="#0a0b0e" />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<meta property="og:type" content="profile" />
+<meta property="og:site_name" content="Samuel Hill — Living AI Portfolio" />
+<meta property="og:url" content="https://samuelhill.online/resume.html" />
+<meta property="og:title" content="Samuel Hill — Full-Stack Agentic AI Engineer · Résumé" />
+<meta property="og:description" content="Full-Stack Agentic AI Engineer. Production LLM applications with the rigor layer most portfolios skip — grounding, evals, tracing, and infrastructure as code." />
+<meta property="og:image" content="https://samuelhill.online/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Samuel Hill — Full-Stack Agentic AI Engineer · Résumé" />
+<meta name="twitter:image" content="https://samuelhill.online/og-image.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0a0b0e; --bg2:#0d0f14; --surface:#111420; --surface2:#161a26; --elev:#1b2030;
+    --ink:#eef1f7; --ink2:#c3c9d6; --mut:#8891a2; --faint:#5b6472;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.15);
+    --accent:#5b8dff; --accent-2:#38d6c4; --accent-soft:rgba(91,141,255,.16);
+    --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink2);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--accent-soft);color:#fff;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 clamp(20px,4vw,40px) 84px;}
+
+  /* utility bar */
+  .rtop{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:rgba(10,11,14,.82);backdrop-filter:blur(10px);z-index:10;}
+  .rtop .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);}
+  .rtop .brand::before{content:"";width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 12px rgba(91,141,255,.7);}
+  .rtop-actions{display:flex;align-items:center;gap:18px;}
+  .rtop .back{font-size:13.5px;color:var(--mut);transition:color .16s;}
+  .rtop .back:hover{color:var(--ink);}
+  .printbtn{font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink2);background:transparent;border:1px solid var(--line2);
+    border-radius:99px;padding:8px 17px;cursor:pointer;transition:.18s;}
+  .printbtn:hover{border-color:var(--accent);color:#fff;background:var(--accent-soft);transform:translateY(-1px);}
+
+  /* header */
+  .rhead{padding:48px 0 24px;}
+  .rhead .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:18px;}
+  .rhead h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.4vw,58px);letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(180deg,#ffffff,#adb5c7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .rhead .role{font-family:var(--mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:16px 0 22px;font-weight:500;}
+  .rhead .contact{font-size:15px;color:var(--ink2);margin-bottom:9px;}
+  .rhead .contact a,.rhead .links a{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .16s;}
+  .rhead .contact a:hover,.rhead .links a:hover{border-color:var(--accent);}
+  .rhead .links{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;}
+
+  /* banner */
+  .banner{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:6px;padding:15px 20px;border-radius:12px;font-size:14px;color:var(--ink2);
+    background:linear-gradient(135deg,var(--accent-soft),rgba(56,214,196,.07));border:1px solid rgba(91,141,255,.28);}
+  .banner a{font-family:var(--mono);font-weight:600;color:var(--accent);font-size:14px;border-bottom:1px solid transparent;transition:border-color .16s;}
+  .banner a:hover{border-color:var(--accent);}
+
+  /* sections */
+  .sec{padding:36px 0 2px;border-top:1px solid var(--line);margin-top:30px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-2);margin-bottom:22px;font-weight:500;}
+  .profile{font-size:15.5px;color:var(--ink2);line-height:1.74;max-width:72ch;}
+
+  /* skills */
+  .skills{display:flex;flex-direction:column;}
+  .skill{display:grid;grid-template-columns:210px 1fr;gap:22px;padding:15px 0;border-bottom:1px solid var(--line);}
+  .skill:last-child{border-bottom:none;}
+  .skill dt{font-family:var(--display);font-weight:600;font-size:14px;color:var(--ink);}
+  .skill dd{font-size:14px;color:var(--mut);line-height:1.62;}
+  @media(max-width:620px){.skill{grid-template-columns:1fr;gap:6px;}}
+
+  /* projects */
+  .proj{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid var(--line);
+    border-radius:14px;padding:22px 24px;margin-bottom:16px;}
+  .proj::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);}
+  .proj-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:11px;}
+  .proj-head h3{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em;color:var(--ink);}
+  .proj p{font-size:14px;color:var(--mut);line-height:1.68;}
+  .proj-links{margin-top:13px;font-family:var(--mono);font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px 12px;}
+  .proj-links a{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .16s;}
+  .proj-links a:hover{border-color:var(--accent);}
+  .badge{flex-shrink:0;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:99px;
+    background:rgba(56,214,196,.14);color:var(--accent-2);border:1px solid rgba(56,214,196,.34);}
+
+  /* experience */
+  .exp{padding:20px 0;border-bottom:1px solid var(--line);}
+  .exp:last-child{border-bottom:none;}
+  .exp-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+  .exp-head h3{font-family:var(--display);font-weight:600;font-size:16.5px;color:var(--ink);}
+  .exp .dates{font-family:var(--mono);font-size:12px;color:var(--faint);white-space:nowrap;flex-shrink:0;}
+  .exp-org{font-size:13.5px;color:var(--accent);margin:4px 0 13px;}
+  .exp ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .exp li{position:relative;padding-left:20px;font-size:14px;color:var(--ink2);line-height:1.62;}
+  .exp li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));}
+
+  /* footer */
+  .rfoot{margin-top:42px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--faint);}
+  .rfoot a{color:var(--accent);border-bottom:1px solid transparent;transition:border-color .16s;}
+  .rfoot a:hover{border-color:var(--accent);}
+
+  @media(max-width:520px){.proj-head,.exp-head{flex-direction:column;gap:4px;}}
+
+  /* --- print / save-as-PDF: clean white professional layout --- */
+  @media print{
+    @page{margin:14mm;}
+    body{background:#fff;color:#20242e;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .rtop{display:none;}
+    .wrap{max-width:none;padding:0;}
+    .rhead{padding:0 0 12px;}
+    .rhead .kicker{color:#8791a5;margin-bottom:10px;}
+    .rhead h1{-webkit-text-fill-color:#0f1420;color:#0f1420;background:none;font-size:32px;}
+    .rhead .role{color:#2d5bd0;margin:10px 0 14px;}
+    .rhead .contact{color:#333;}
+    .rhead .contact a,.rhead .links a,.banner a,.proj-links a,.exp-org,.rfoot a{color:#2d5bd0;border:none;}
+    .banner{background:#eef3ff;border-color:#cad9ff;color:#333;}
+    .sec{border-color:#e3e7ef;padding:20px 0 0;margin-top:16px;}
+    .eyebrow{color:#2d5bd0;margin-bottom:14px;}
+    .profile,.skill dd,.proj p,.exp li{color:#333;}
+    .skill dt,.proj-head h3,.exp-head h3{color:#111;}
+    .skill,.exp{border-color:#e3e7ef;padding:9px 0;}
+    .proj{background:#f7f9fc;border-color:#e3e7ef;break-inside:avoid;margin-bottom:11px;padding:16px 18px;}
+    .proj::before{display:none;}
+    .badge{background:#e6faf4;color:#0f9d70;border-color:#b5ead9;}
+    .exp{break-inside:avoid;}
+    .exp .dates{color:#888;}
+    .exp li::before{background:#2d5bd0;}
+    .rfoot{color:#888;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="rtop">
+    <a class="brand" href="/">Living AI Portfolio</a>
+    <div class="rtop-actions">
+      <a class="back" href="/">&larr; Portfolio</a>
+      <button class="printbtn" type="button" onclick="window.print()">Save as PDF</button>
+    </div>
+  </div>
+
+  <header class="rhead">
+    <div class="kicker">Samuel Hill &middot; R&eacute;sum&eacute; &middot; Bel Air, MD</div>
+    <h1>Samuel Hill</h1>
+    <div class="role">Full-Stack Agentic AI Engineer</div>
+    <div class="contact">Bel Air, MD &middot; <a href="tel:+15127779238">(512)&nbsp;777-9238</a> &middot; <a href="mailto:samuelchill0620@gmail.com">samuelchill0620@gmail.com</a></div>
+    <div class="links">
+      <a href="https://github.com/samchill93" target="_blank" rel="noopener">github.com/samchill93</a>
+      <a href="https://www.linkedin.com/in/therealsamhill/" target="_blank" rel="noopener">linkedin.com/in/therealsamhill</a>
+      <a href="https://samuelhill.online" target="_blank" rel="noopener">samuelhill.online</a>
+    </div>
+  </header>
+
+  <div class="banner">
+    <a href="https://samuelhill.online" target="_blank" rel="noopener">samuelhill.online</a>
+    <span>live portfolio &mdash; grounded RAG assistant &middot; published eval scores &middot; live metrics &middot; working agent</span>
+  </div>
+
+  <section class="sec" style="border-top:none;margin-top:8px;">
+    <div class="eyebrow">Profile</div>
+    <p class="profile">Self-taught Full-Stack Agentic AI Engineer who builds production LLM applications end to end &mdash; React/Next.js/TypeScript frontends, Python (FastAPI) and Node.js backends, Claude &amp; OpenAI APIs &mdash; with the rigor layer most portfolios skip: retrieval grounding, measured evaluations, tracing, and infrastructure as code. My portfolio site is itself a live production system that runs every capability it claims. Seven years of client-facing technical delivery leadership mean I&rsquo;m equally at home building the product and demoing it to customers.</p>
+  </section>
+
+  <section class="sec">
+    <div class="eyebrow">Technical Skills</div>
+    <dl class="skills">
+      <div class="skill"><dt>AI / LLM Engineering</dt><dd>Claude &amp; OpenAI APIs &middot; RAG with citations (pgvector) &middot; LLM evals &amp; LLM-as-judge &middot; agents with tool use &middot; MCP servers &middot; streaming (SSE) &middot; context engineering &middot; grounded chat with refusal &amp; handoff</dd></div>
+      <div class="skill"><dt>Frontend</dt><dd>React &middot; Next.js &middot; TypeScript &middot; JavaScript &middot; React Native (Expo) &middot; Vite &middot; Tailwind CSS</dd></div>
+      <div class="skill"><dt>Backend &amp; APIs</dt><dd>Node.js &middot; Express &middot; Python &middot; FastAPI &middot; Pydantic &middot; REST APIs &middot; OpenAPI &middot; serverless &middot; Firebase (Auth + Firestore) &middot; Stripe</dd></div>
+      <div class="skill"><dt>Cloud, Delivery &amp; IaC</dt><dd>Docker &middot; Terraform &middot; Vercel &middot; Render &middot; Google Cloud Run &middot; GitHub Actions (CI/CD) &middot; environment &amp; secrets management &middot; Sentry &middot; Cloudflare</dd></div>
+      <div class="skill"><dt>Observability &amp; Quality</dt><dd>request tracing &amp; structured logging &middot; /metrics endpoints &middot; cost &amp; latency instrumentation &middot; pytest &middot; Playwright &middot; golden-dataset evals &middot; QA process design</dd></div>
+      <div class="skill"><dt>Customer-Facing</dt><dd>live product demos &middot; technical communication &middot; stakeholder &amp; delivery management &middot; Agile (JIRA)</dd></div>
+    </dl>
+  </section>
+
+  <section class="sec">
+    <div class="eyebrow">Selected Projects &mdash; all deployed, live links included</div>
+
+    <div class="proj">
+      <div class="proj-head"><h3>Living Portfolio &mdash; self-demonstrating production AI system</h3><span class="badge">Live demo</span></div>
+      <p>A site that runs its own claims instead of listing them &mdash; eight shipped modules, each documented and defensible. RAG assistant with citations (pgvector) that answers only from real documents and refuses what they don&rsquo;t cover; a 108-case golden-dataset eval suite scoring 0.992 retrieval recall@5 and 92/92 valid citations at $0.41 per run, which caught a live overclaim bug that was fixed, re-measured, and redeployed; request tracing with a public /metrics endpoint; a tool-using agent over portfolio data; an open-source MCP server; token streaming; Docker; and Terraform that round-trips clean against live infrastructure. Typed FastAPI backend (Pydantic, pytest, OpenAPI), CI/CD rebuilding two clouds on one push.</p>
+      <div class="proj-links"><a href="https://samuelhill.online" target="_blank" rel="noopener">samuelhill.online</a> &middot; <a href="https://github.com/samchill93/samuel-ai-api" target="_blank" rel="noopener">github.com/samchill93/samuel-ai-api</a></div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-head"><h3>Cadence &mdash; AI customer-support chatbot integration</h3><span class="badge">Live demo</span></div>
+      <p>Custom support assistant on the Claude API, grounded in a product&rsquo;s real knowledge: answers only from known content, refuses honestly instead of hallucinating, and hands off cleanly to a human. React + Vercel serverless, API key held server-side.</p>
+      <div class="proj-links"><a href="https://cadence-support-bot.vercel.app" target="_blank" rel="noopener">cadence-support-bot.vercel.app</a> &middot; <a href="https://github.com/samchill93/cadence-support-bot" target="_blank" rel="noopener">github.com/samchill93/cadence-support-bot</a></div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-head"><h3>Meridian &mdash; brand landing page</h3><span class="badge">Live demo</span></div>
+      <p>Framework-free responsive landing page built from scratch: CSS design tokens, fluid type with clamp(), auto-fit grid. Deployed with push-to-deploy on Vercel.</p>
+      <div class="proj-links"><a href="https://meridian-landing-mu.vercel.app" target="_blank" rel="noopener">meridian-landing-mu.vercel.app</a> &middot; <a href="https://github.com/samchill93/meridian-landing" target="_blank" rel="noopener">github.com/samchill93/meridian-landing</a></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="eyebrow">Experience</div>
+
+    <div class="exp">
+      <div class="exp-head"><h3>Independent Full-Stack AI Engineer</h3><span class="dates">2026 &ndash; Present</span></div>
+      <div class="exp-org">Freelance &middot; Bel Air, MD</div>
+      <ul>
+        <li>Design, build, and deploy production web and AI applications for clients &mdash; auth, Stripe payments, i18n, CI/CD, automated tests &mdash; plus custom Claude-API chatbots grounded in client content, with live demos delivered before commitment.</li>
+      </ul>
+    </div>
+
+    <div class="exp">
+      <div class="exp-head"><h3>Consultant / Advisor (Contract)</h3><span class="dates">Jun 2025 &ndash; Present</span></div>
+      <div class="exp-org">ClearShot AI &middot; Washington, DC</div>
+      <ul>
+        <li>Advise leadership of a B2G critical-infrastructure AI platform, aligning technical development milestones with strategic business objectives.</li>
+      </ul>
+    </div>
+
+    <div class="exp">
+      <div class="exp-head"><h3>Technical Project Manager</h3><span class="dates">2019 &ndash; 2024</span></div>
+      <div class="exp-org">Friendlyforce &middot; Austin, TX</div>
+      <ul>
+        <li>Led the full project lifecycle for a high-growth startup from launch through year five, directing up to 11 developers across 3+ teams.</li>
+        <li>Designed and enforced a video-validated QA protocol that cut defects 90%, raised productivity 39%, and shortened project cycles 30%.</li>
+        <li>Partnered with executives and investors on delivery that helped secure $2.4M in funding; trained 15+ hires in Agile processes and tooling.</li>
+      </ul>
+    </div>
+
+    <div class="exp">
+      <div class="exp-head"><h3>Project Manager</h3><span class="dates">2017 &ndash; 2019</span></div>
+      <div class="exp-org">Hoodini &middot; Austin, TX</div>
+      <ul>
+        <li>Aligned delivery with C-suite goals; led UAT &amp; QA policies.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="rfoot">Built framework-free, like the site it mirrors &mdash; <a href="https://samuelhill.online" target="_blank" rel="noopener">samuelhill.online</a>. Every claim above links to a running system.</footer>
+
+</div>
+</body>
+</html>
