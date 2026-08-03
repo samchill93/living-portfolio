@@ -782,9 +782,9 @@ document.querySelectorAll('[data-edit]').forEach(a=>a.onclick=e=>{e.preventDefau
 const FEATURES = {
   telemetry:        true,   // Live Telemetry Strip     — Tier 1
   xray:             true,   // Architecture X-Ray       — Tier 1
-  xray3d:           false,  // 3D X-Ray layer           — off until its gates pass
+  xray3d:           true,   // 3D X-Ray layer           — enabled; auto-falls back to 2D on mobile/low-mem/no-WebGL
   topology:         true,   // Deployment Topology      — Tier 1
-  topology3d:       false,  // 3D topology layer        — off until its gates pass
+  topology3d:       true,   // 3D topology layer        — enabled; auto-falls back to 2D on mobile/low-mem/no-WebGL
   costFooter:       true,   // Honest Cost Footer        — Tier 1
   citations:        false,  // Citations You Can Touch  — unlocks: Module 1
   honestyChallenge: false,  // Honesty Challenge        — unlocks: Module 1
